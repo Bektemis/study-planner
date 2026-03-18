@@ -21,6 +21,7 @@ body{font-family:'Instrument Sans',sans-serif;background:var(--bg);color:var(--t
 .nav-btn{padding:6px 14px;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-size:13px;font-family:'Instrument Sans',sans-serif;color:var(--muted);margin-bottom:-1px;transition:color .15s,border-color .15s}
 .nav-btn:hover{color:var(--text)}
 .nav-btn.active{color:var(--text);border-bottom-color:var(--text);font-weight:500}
+.user-chip{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
 .content{flex:1;padding:2rem;max-width:1100px;margin:0 auto;width:100%}
 .page{display:none}.page.active{display:block}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow)}
@@ -68,7 +69,7 @@ body{font-family:'Instrument Sans',sans-serif;background:var(--bg);color:var(--t
 .pomo-time{font-family:'DM Mono',monospace;font-size:32px;font-weight:500;letter-spacing:-1px}
 .pomo-phase{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.05em}
 .form-row{display:flex;gap:8px;margin-bottom:10px;align-items:center;flex-wrap:wrap}
-input[type=text],input[type=date],input[type=number],select,textarea{font-family:'Instrument Sans',sans-serif;font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:7px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s}
+input[type=text],input[type=email],input[type=password],input[type=date],input[type=number],select,textarea{font-family:'Instrument Sans',sans-serif;font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:7px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s}
 input:focus,select:focus,textarea:focus{border-color:var(--text)}
 textarea{resize:vertical;min-height:70px;width:100%}
 .btn{padding:7px 18px;border-radius:7px;border:1px solid var(--border2);background:var(--surface);cursor:pointer;font-size:13px;font-family:'Instrument Sans',sans-serif;font-weight:500;color:var(--text);transition:background .1s;white-space:nowrap}
@@ -93,8 +94,6 @@ textarea{resize:vertical;min-height:70px;width:100%}
 .color-picker{display:flex;gap:6px;flex-wrap:wrap}
 .color-swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color .1s}
 .color-swatch.selected{border-color:var(--text)}
-
-/* ── STATS ── */
 .week-history-card{border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden;background:var(--surface)}
 .week-history-header{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;user-select:none;transition:background .1s}
 .week-history-header:hover{background:var(--surface2)}
@@ -107,11 +106,57 @@ textarea{resize:vertical;min-height:70px;width:100%}
 .hist-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;line-height:1.4}
 .hist-pill.undone{opacity:.35;text-decoration:line-through}
 
+/* ── AUTH SCREEN ── */
+#auth-screen{display:none;min-height:100vh;align-items:center;justify-content:center;background:var(--bg)}
+#auth-screen.visible{display:flex}
+.auth-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem;width:380px;max-width:95vw;box-shadow:var(--shadow)}
+.auth-logo{font-family:'Crimson Pro',serif;font-size:26px;font-weight:600;text-align:center;margin-bottom:6px}
+.auth-logo span{color:var(--muted);font-weight:400}
+.auth-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:1.5rem}
+.auth-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:1.5rem}
+.auth-tab{flex:1;padding:8px;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-size:13px;font-family:'Instrument Sans',sans-serif;color:var(--muted);margin-bottom:-1px}
+.auth-tab.active{color:var(--text);border-bottom-color:var(--text);font-weight:500}
+.auth-input{width:100%;margin-bottom:10px}
+.auth-error{font-size:12px;color:var(--red);margin-bottom:10px;min-height:16px}
+.auth-btn{width:100%;padding:10px;border-radius:7px;border:none;background:var(--text);color:var(--surface);font-size:14px;font-family:'Instrument Sans',sans-serif;font-weight:500;cursor:pointer;transition:opacity .15s}
+.auth-btn:hover{opacity:.85}
+
+/* ── LOADING SPINNER ── */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay{position:fixed;inset:0;background:rgba(247,245,240,.8);z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;font-size:13px;color:var(--muted)}
+.loading-overlay.visible{display:flex}
+
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
 @media(max-width:700px){.grid-2,.grid-4{grid-template-columns:1fr}.grid-7{grid-template-columns:repeat(4,1fr)}.content{padding:1rem}.app-header{padding:0 1rem;gap:1rem}}
 </style>
 </head>
 <body>
+
+<!-- ══ LOADING OVERLAY ══ -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+  <div>Loading...</div>
+</div>
+
+<!-- ══ AUTH SCREEN ══ -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">Study<span>Planner</span></div>
+    <div class="auth-sub">ICT & Internet Engineering</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login',this)">Sign in</button>
+      <button class="auth-tab" onclick="switchAuthTab('register',this)">Create account</button>
+    </div>
+    <div id="auth-error" class="auth-error"></div>
+    <input type="email" id="auth-email" class="auth-input" placeholder="Email address">
+    <input type="password" id="auth-password" class="auth-input" placeholder="Password">
+    <button class="auth-btn" id="auth-submit" onclick="submitAuth()">Sign in</button>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ══ -->
+<div id="app" style="display:none;flex-direction:column;min-height:100vh">
 
 <header class="app-header">
   <div class="logo">Study<span>Planner</span></div>
@@ -124,6 +169,10 @@ textarea{resize:vertical;min-height:70px;width:100%}
     <button class="nav-btn" onclick="showPage('pomodoro',this)">Pomodoro</button>
     <button class="nav-btn" onclick="showPage('stats',this)">Statistics</button>
   </nav>
+  <div class="user-chip">
+    <span id="user-email-display"></span>
+    <button class="btn btn-sm" onclick="logout()">Sign out</button>
+  </div>
 </header>
 
 <main class="content">
@@ -338,6 +387,7 @@ textarea{resize:vertical;min-height:70px;width:100%}
 </div>
 
 </main>
+</div><!-- end #app -->
 
 <div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
   <div class="modal" id="modal-content"></div>
@@ -345,87 +395,235 @@ textarea{resize:vertical;min-height:70px;width:100%}
 
 <script>
 // ══════════════════════════════════════════
+//  API LAYER — all fetch() calls live here
+// ══════════════════════════════════════════
+const API = '/api';
+
+function getToken() { return localStorage.getItem('sp_token'); }
+function setToken(t) { localStorage.setItem('sp_token', t); }
+function clearToken() { localStorage.removeItem('sp_token'); localStorage.removeItem('sp_email'); }
+
+async function req(method, path, body) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  if (res.status === 401) { logout(); return null; }
+  if (!res.ok) { const e = await res.json().catch(()=>({error:'Network error'})); throw new Error(e.error||'Error'); }
+  return res.json();
+}
+
+const api = {
+  // auth
+  login:    (email,pass)  => req('POST','/auth/login',   {email,password:pass}),
+  register: (email,pass)  => req('POST','/auth/register',{email,password:pass}),
+  // subjects
+  getSubjects:    ()          => req('GET', '/subjects'),
+  createSubject:  (data)      => req('POST','/subjects', data),
+  updateSubject:  (id,data)   => req('PUT', `/subjects/${id}`, data),
+  deleteSubject:  (id)        => req('DELETE',`/subjects/${id}`),
+  saveTopics:     (id,topics) => req('PUT', `/subjects/${id}/topics`, {topics}),
+  // sessions
+  getSessions:    ()          => req('GET', '/sessions'),
+  createSession:  (data)      => req('POST','/sessions', data),
+  deleteSession:  (id)        => req('DELETE',`/sessions/${id}`),
+  // exams
+  getExams:       ()          => req('GET', '/exams'),
+  createExam:     (data)      => req('POST','/exams', data),
+  updateExam:     (id,data)   => req('PUT', `/exams/${id}`, data),
+  deleteExam:     (id)        => req('DELETE',`/exams/${id}`),
+  // notes
+  getNotes:       ()          => req('GET', '/notes'),
+  createNote:     (data)      => req('POST','/notes', data),
+  deleteNote:     (id)        => req('DELETE',`/notes/${id}`),
+  // weeks
+  getWeeks:       ()          => req('GET', '/weeks'),
+  getWeek:        (key)       => req('GET', `/weeks/${key}`),
+  saveWeek:       (key,data)  => req('PUT', `/weeks/${key}`, data),
+};
+
+// ══════════════════════════════════════════
 //  WEEK KEY UTILITIES
-//  Week key = ISO date string of that week's Monday, e.g. "2025-03-17"
 // ══════════════════════════════════════════
 function getMondayDate(d) {
   const dt = new Date(d); dt.setHours(0,0,0,0);
-  const day = dt.getDay(); // 0=Sun
+  const day = dt.getDay();
   dt.setDate(dt.getDate() - (day === 0 ? 6 : day - 1));
   return dt;
 }
-function weekKey(d) { return getMondayDate(d).toISOString().slice(0,10); }
+function weekKey(d)    { return getMondayDate(d).toISOString().slice(0,10); }
 function currentWeekKey() { return weekKey(new Date()); }
 function weekRangeLabel(key) {
-  const mon = new Date(key+'T00:00');
-  const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+  const mon = new Date(key+'T00:00'), sun = new Date(mon);
+  sun.setDate(mon.getDate()+6);
   const f = d => d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
   return f(mon)+' – '+f(sun);
 }
-// Real date of a weekday index (0=Mon…6=Sun) within a given week key
 function realDateOfDay(wKey, di) {
   const d = new Date(wKey+'T00:00'); d.setDate(d.getDate()+di); return d;
 }
 
 // ══════════════════════════════════════════
-//  STATE
+//  STATE  (loaded from API, not localStorage)
 // ══════════════════════════════════════════
-const SK = 'stp_v4';
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-const DS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const DS   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 
-function freshDone() { return [[],[],[],[],[],[],[]]; }
-
-const DEF = {
-  subjects:[
-    {id:'dl',name:'Deep Learning',color:'#0C447C',bg:'#E6F1FB',topics:[{name:'Neural networks basics',pct:40},{name:'CNN architectures',pct:20},{name:'RNNs & LSTMs',pct:0},{name:'Transformers',pct:0},{name:'Practical coding',pct:10}]},
-    {id:'iot',name:'IoT',color:'#27500A',bg:'#EAF3DE',topics:[{name:'Protocol stack',pct:50},{name:'MQTT & CoAP',pct:30},{name:'Edge computing',pct:0},{name:'Security',pct:0}]},
-    {id:'ra',name:'Radar & Loc.',color:'#3C3489',bg:'#EEEDFE',topics:[{name:'Theory fundamentals',pct:60},{name:'Signal processing',pct:20},{name:'Project work',pct:10}]},
-    {id:'sn',name:'Software Networks',color:'#633806',bg:'#FAEEDA',topics:[{name:'Architecture',pct:70},{name:'Protocols',pct:40},{name:'Project work',pct:15}]}
-  ],
-  schedule:[
-    [{sid:'dl',topic:'Neural networks basics',dur:45},{sid:'dl',topic:'Exercises / practice',dur:30}],
-    [{sid:'iot',topic:'Slides review',dur:45},{sid:'iot',topic:'Protocol notes',dur:30}],
-    [{sid:'ra',topic:'Theory + project work',dur:60}],
-    [{sid:'dl',topic:'Practical / coding',dur:45},{sid:'dl',topic:'Review previous session',dur:30}],
-    [{sid:'sn',topic:'Theory + project work',dur:60}],
-    [{sid:'iot',topic:'Catch-up / deepen',dur:45},{sid:'ra',topic:'Catch-up / deepen',dur:45}],
-    [{sid:'rest',topic:'Rest day',dur:0}]
-  ],
-  // weekHistory: { [weekKey]: { done: freshDone(), snapshot: copy of schedule } }
-  weekHistory:{},
-  exams:[], notes:[],
-  pomodoros:0, pomoToday:0, pomoDayStamp:'', pomoLog:[],
-  streak:0, lastStudyDay:'', curDay:0
+// In-memory state — refreshed from API on login and after each mutation
+let D = {
+  subjects: [], sessions: [], exams: [], notes: [],
+  weekHistory: {},   // { [weekKey]: { completions: {sessionId: true} } }
+  streak: 0, lastStudyDay: '',
+  pomodoros: 0, pomoToday: 0, pomoDayStamp: '', pomoLog: [],
+  curDay: 0
 };
 
-let D;
-try { D = JSON.parse(localStorage.getItem(SK)) || clone(DEF); } catch(e) { D = clone(DEF); }
-function clone(x) { return JSON.parse(JSON.stringify(x)); }
-function save() { try { localStorage.setItem(SK, JSON.stringify(D)); } catch(e){} }
+// ── Helpers ──
+const $        = id => document.getElementById(id);
+const todayIdx = () => { const d=new Date().getDay(); return d===0?6:d-1; };
+const getSubj  = id => D.subjects.find(s=>s.id===id);
+const fmtDate  = s  => new Date(s+'T00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+const daysUntil= s  => { const d=new Date(s+'T00:00'),n=new Date(); n.setHours(0,0,0,0); return Math.ceil((d-n)/86400000); };
+const clone    = x  => JSON.parse(JSON.stringify(x));
+const fmtSecs  = s  => String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+const genId    = () => Math.random().toString(36).slice(2,8);
 
-// Called on every page load and interaction — creates week entry if missing
-function ensureWeek(key) {
-  if (!key) key = currentWeekKey();
-  if (!D.weekHistory[key]) {
-    D.weekHistory[key] = { done: freshDone(), snapshot: clone(D.schedule) };
-    save();
-  }
-  return D.weekHistory[key];
+function loading(on) { $(on?'loading-overlay':'loading-overlay').classList.toggle('visible', on); }
+function showLoading(){ $('loading-overlay').classList.add('visible'); }
+function hideLoading(){ $('loading-overlay').classList.remove('visible'); }
+
+// sessions for a given day index (0=Mon…6=Sun)
+function sessionsForDay(di) { return D.sessions.filter(s=>s.dayIndex===di).sort((a,b)=>a.id.localeCompare(b.id)); }
+
+// current week completions object { sessionId: true }
+function currentCompletions() {
+  const wk = currentWeekKey();
+  return D.weekHistory[wk]?.completions || {};
 }
 
-function cw() { return ensureWeek(currentWeekKey()); } // current week entry
+// is a session done this week?
+function isDone(sessionId) { return !!currentCompletions()[sessionId]; }
+
+// toggle done and persist to API
+async function toggleDone(sessionId) {
+  const wk   = currentWeekKey();
+  const comp = clone(currentCompletions());
+  if (comp[sessionId]) delete comp[sessionId];
+  else { comp[sessionId] = true; updateStreak(); }
+  if (!D.weekHistory[wk]) D.weekHistory[wk] = {};
+  D.weekHistory[wk].completions = comp;
+  D.weekHistory[wk].weekKey = wk;
+  await api.saveWeek(wk, { completions: comp });
+}
+
+function updateStreak() {
+  const today = new Date().toISOString().slice(0,10);
+  if (D.lastStudyDay !== today) {
+    const yd = new Date(); yd.setDate(yd.getDate()-1);
+    D.streak = D.lastStudyDay === yd.toISOString().slice(0,10) ? D.streak+1 : 1;
+    D.lastStudyDay = today;
+    // persist streak in localStorage (lightweight, not sensitive)
+    localStorage.setItem('sp_streak', JSON.stringify({streak:D.streak, lastStudyDay:D.lastStudyDay}));
+  }
+}
 
 // ══════════════════════════════════════════
-//  HELPERS
+//  AUTH
 // ══════════════════════════════════════════
-const $ = id => document.getElementById(id);
-const todayIdx = () => { const d=new Date().getDay(); return d===0?6:d-1; };
-const getSubj = id => D.subjects.find(s=>s.id===id);
-const fmtDate = s => new Date(s+'T00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
-const daysUntil = s => { const d=new Date(s+'T00:00'),n=new Date(); n.setHours(0,0,0,0); return Math.ceil((d-n)/86400000); };
-const genId = () => Math.random().toString(36).slice(2,8);
-const fmtSecs = s => String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+let authMode = 'login';
+
+function switchAuthTab(mode, btn) {
+  authMode = mode;
+  document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  $('auth-submit').textContent = mode === 'login' ? 'Sign in' : 'Create account';
+  $('auth-error').textContent = '';
+}
+
+async function submitAuth() {
+  const email = $('auth-email').value.trim();
+  const pass  = $('auth-password').value;
+  if (!email || !pass) { $('auth-error').textContent = 'Please fill in both fields'; return; }
+  $('auth-error').textContent = '';
+  $('auth-submit').disabled = true;
+  $('auth-submit').textContent = '...';
+  try {
+    const fn = authMode === 'login' ? api.login : api.register;
+    const data = await fn(email, pass);
+    setToken(data.token);
+    localStorage.setItem('sp_email', email);
+    await bootApp();
+  } catch(e) {
+    $('auth-error').textContent = e.message;
+  } finally {
+    $('auth-submit').disabled = false;
+    $('auth-submit').textContent = authMode === 'login' ? 'Sign in' : 'Create account';
+  }
+}
+
+// allow pressing Enter in auth fields
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && $('auth-screen').classList.contains('visible')) submitAuth();
+});
+
+function logout() {
+  clearToken();
+  D = { subjects:[], sessions:[], exams:[], notes:[], weekHistory:{}, streak:0, lastStudyDay:'', pomodoros:0, pomoToday:0, pomoDayStamp:'', pomoLog:[], curDay:0 };
+  $('app').style.display = 'none';
+  $('auth-screen').classList.add('visible');
+  $('auth-email').value = '';
+  $('auth-password').value = '';
+}
+
+// ══════════════════════════════════════════
+//  BOOT — load all data from API
+// ══════════════════════════════════════════
+async function bootApp() {
+  showLoading();
+  try {
+    // load all data in parallel
+    const [subjects, sessions, exams, notes, weeks] = await Promise.all([
+      api.getSubjects(), api.getSessions(), api.getExams(), api.getNotes(), api.getWeeks()
+    ]);
+    D.subjects = subjects || [];
+    D.sessions = sessions || [];
+    D.exams    = exams    || [];
+    D.notes    = notes    || [];
+
+    // build weekHistory map from API response
+    D.weekHistory = {};
+    (weeks || []).forEach(w => { D.weekHistory[w.weekKey] = { completions: w.completions || {}, weekKey: w.weekKey }; });
+
+    // restore streak from localStorage
+    try { const sk = JSON.parse(localStorage.getItem('sp_streak')||'{}'); D.streak=sk.streak||0; D.lastStudyDay=sk.lastStudyDay||''; } catch(e){}
+    // restore pomodoro counts
+    try { const pk = JSON.parse(localStorage.getItem('sp_pomo')||'{}'); D.pomodoros=pk.pomodoros||0; D.pomoToday=pk.pomoToday||0; D.pomoDayStamp=pk.pomoDayStamp||''; D.pomoLog=pk.pomoLog||[]; } catch(e){}
+
+    $('auth-screen').classList.remove('visible');
+    $('app').style.display = 'flex';
+    $('user-email-display').textContent = localStorage.getItem('sp_email') || '';
+
+    // ensure current week exists on server
+    const cwk = currentWeekKey();
+    if (!D.weekHistory[cwk]) {
+      D.weekHistory[cwk] = { completions: {}, weekKey: cwk };
+      await api.saveWeek(cwk, { completions: {} });
+    }
+
+    renderDashboard();
+    renderPlanner();
+    updateNoteSubjSel();
+    uPomo(PA, IDA);
+    uPomo(PB, IDB);
+  } catch(e) {
+    console.error(e);
+    alert('Failed to load data: ' + e.message);
+  } finally {
+    hideLoading();
+  }
+}
 
 // ══════════════════════════════════════════
 //  NAV
@@ -434,59 +632,58 @@ function showPage(name, btn) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   $('page-'+name).classList.add('active'); btn.classList.add('active');
-  ({dashboard:renderDashboard,planner:renderPlanner,subjects:()=>{renderSubjects();renderTopicSelector();},exams:renderExams,notes:renderNotes,pomodoro:renderPomoPage,stats:renderStats})[name]?.();
+  ({dashboard:renderDashboard, planner:renderPlanner, subjects:()=>{renderSubjects();renderTopicSelector();},
+    exams:renderExams, notes:renderNotes, pomodoro:renderPomoPage, stats:renderStats})[name]?.();
 }
 
 // ══════════════════════════════════════════
 //  DASHBOARD
 // ══════════════════════════════════════════
 function renderDashboard() {
-  const now=new Date(),h=now.getHours();
-  $('dash-greeting').textContent=h<12?'Good morning':h<18?'Good afternoon':'Good evening';
-  $('dash-date').textContent=now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  $('dash-streak').textContent=D.streak;
-  $('dash-subjects').textContent=D.subjects.length;
-  $('dash-week-label').textContent=weekRangeLabel(currentWeekKey());
+  const now=new Date(), h=now.getHours();
+  $('dash-greeting').textContent = h<12?'Good morning':h<18?'Good afternoon':'Good evening';
+  $('dash-date').textContent = now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  $('dash-streak').textContent = D.streak;
+  $('dash-subjects').textContent = D.subjects.length;
+  $('dash-week-label').textContent = weekRangeLabel(currentWeekKey());
 
-  const wk=cw(), ti=todayIdx(), tSess=D.schedule[ti], tDone=wk.done[ti].length;
-  $('dash-today').textContent=tDone+'/'+tSess.length;
-  $('dash-prog').style.width=(tSess.length?Math.round(tDone/tSess.length*100):0)+'%';
-  $('dash-prog-text').textContent=tDone+' of '+tSess.length+' sessions done';
+  const ti = todayIdx(), todaySess = sessionsForDay(ti), comp = currentCompletions();
+  const tDone = todaySess.filter(s=>comp[s.id]).length;
+  $('dash-today').textContent = tDone+'/'+todaySess.length;
+  $('dash-prog').style.width = (todaySess.length ? Math.round(tDone/todaySess.length*100) : 0)+'%';
+  $('dash-prog-text').textContent = tDone+' of '+todaySess.length+' sessions done';
 
   // today sessions
   const dc=$('dash-sessions'); dc.innerHTML='';
-  tSess.slice(0,3).forEach((s,i)=>{
-    const subj=getSubj(s.sid),isDone=wk.done[ti].includes(i),el=document.createElement('div');
-    el.className='session-item'+(isDone?' done':'');
-    el.innerHTML=`<div class="check-circle">${isDone?'✓':''}</div><div style="flex:1"><div class="s-name">${subj?subj.name:'Rest'}</div><div class="s-detail">${s.topic}</div></div>${s.dur?`<span class="s-dur">${s.dur}m</span>`:''}`;
-    el.onclick=()=>{toggleDone(ti,i);renderDashboard();};
+  todaySess.slice(0,3).forEach(s=>{
+    const subj=getSubj(s.subjectId), done=!!comp[s.id], el=document.createElement('div');
+    el.className='session-item'+(done?' done':'');
+    el.innerHTML=`<div class="check-circle">${done?'✓':''}</div><div style="flex:1"><div class="s-name">${subj?subj.name:'Rest'}</div><div class="s-detail">${s.topic}</div></div>${s.duration?`<span class="s-dur">${s.duration}m</span>`:''}`;
+    el.onclick=async()=>{ await toggleDone(s.id); renderDashboard(); };
     dc.appendChild(el);
   });
-  if(tSess.length>3){const m=document.createElement('div');m.style.cssText='font-size:12px;color:var(--muted);text-align:center;padding:6px';m.textContent='+'+(tSess.length-3)+' more in Daily Planner';dc.appendChild(m);}
+  if(todaySess.length>3){const m=document.createElement('div');m.style.cssText='font-size:12px;color:var(--muted);text-align:center;padding:6px';m.textContent='+'+(todaySess.length-3)+' more in Daily Planner';dc.appendChild(m);}
 
   // weekly dot grid
-  const key=currentWeekKey(),wg=$('dash-week-grid'); wg.innerHTML='';
+  const key=currentWeekKey(), wg=$('dash-week-grid'); wg.innerHTML='';
   DS.forEach((d,i)=>{
-    const sess=D.schedule[i],dn=wk.done[i].length,pct=sess.length?Math.round(dn/sess.length*100):0,isToday=i===ti;
-    const realDate=realDateOfDay(key,i);
-    const col=document.createElement('div'); col.className='week-day-col';
+    const sess=sessionsForDay(i), dn=sess.filter(s=>comp[s.id]).length, pct=sess.length?Math.round(dn/sess.length*100):0, isToday=i===ti;
+    const rd=realDateOfDay(key,i), col=document.createElement('div'); col.className='week-day-col';
     col.innerHTML=`<div class="week-day-name" style="${isToday?'color:var(--text);font-weight:700':''}">${d}</div>
-      <div title="${realDate.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}" style="background:${pct===100?'var(--green-bg)':isToday?'var(--surface2)':'var(--surface)'};border:1px solid ${isToday?'var(--border2)':'var(--border)'};border-radius:6px;padding:6px 2px;min-height:40px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px">
-        ${sess.filter(s=>s.sid!=='rest').slice(0,2).map(s=>{const subj=getSubj(s.sid);return subj?`<div class="week-dot" style="background:${subj.color}"></div>`:''}).join('')}
+      <div style="background:${pct===100?'var(--green-bg)':isToday?'var(--surface2)':'var(--surface)'};border:1px solid ${isToday?'var(--border2)':'var(--border)'};border-radius:6px;padding:6px 2px;min-height:40px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px">
+        ${sess.filter(s=>s.subjectId).slice(0,2).map(s=>{const subj=getSubj(s.subjectId);return subj?`<div class="week-dot" style="background:${subj.color}"></div>`:''}).join('')}
         ${pct>0?`<div style="font-size:10px;color:var(--muted)">${pct}%</div>`:''}
       </div>
-      <div style="font-size:10px;color:var(--faint);margin-top:2px">${realDate.getDate()}</div>`;
+      <div style="font-size:10px;color:var(--faint);margin-top:2px">${rd.getDate()}</div>`;
     wg.appendChild(col);
   });
 
   // subject time bars
   const times={}; D.subjects.forEach(s=>times[s.id]=0);
-  D.schedule.forEach(ds=>ds.forEach(s=>{if(times[s.sid]!==undefined)times[s.id||s.sid]=(times[s.id||s.sid]||0)+s.dur;}));
-  D.subjects.forEach(subj=>{times[subj.id]=0;});
-  D.schedule.forEach(ds=>ds.forEach(s=>{const subj=getSubj(s.sid);if(subj)times[subj.id]+=s.dur;}));
-  const maxT=Math.max(...Object.values(times),1),sb=$('dash-subject-bars'); sb.innerHTML='';
+  D.sessions.forEach(s=>{if(times[s.subjectId]!==undefined)times[s.subjectId]+=s.duration;});
+  const maxT=Math.max(...Object.values(times),1), sb=$('dash-subject-bars'); sb.innerHTML='';
   D.subjects.forEach(subj=>{
-    const t=times[subj.id]||0,pct=Math.round(t/maxT*100);
+    const t=times[subj.id]||0, pct=Math.round(t/maxT*100);
     const row=document.createElement('div'); row.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px';
     row.innerHTML=`<div style="width:90px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${subj.name}</div><div style="flex:1;background:var(--surface2);border-radius:4px;height:6px;overflow:hidden"><div style="width:${pct}%;height:6px;border-radius:4px;background:${subj.color};transition:width .4s"></div></div><div style="min-width:36px;text-align:right;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px">${t}m</div>`;
     sb.appendChild(row);
@@ -495,7 +692,7 @@ function renderDashboard() {
   // topic progress
   const dt=$('dash-topics'); dt.innerHTML='';
   D.subjects.forEach(subj=>{
-    if(!subj.topics?.length)return;
+    if(!subj.topics?.length) return;
     const avg=Math.round(subj.topics.reduce((a,t)=>a+t.pct,0)/subj.topics.length);
     const row=document.createElement('div'); row.className='topic-row';
     row.innerHTML=`<div style="width:12px;height:12px;border-radius:50%;background:${subj.color};flex-shrink:0"></div><div class="topic-name" style="font-weight:500">${subj.name}</div><div class="mini-prog-wrap"><div class="mini-prog" style="width:${avg}%;background:${subj.color}"></div></div><div class="topic-pct" style="color:${subj.color}">${avg}%</div>`;
@@ -510,7 +707,7 @@ function renderDashboard() {
   else {
     $('dash-exams').textContent=daysUntil(up[0].date);
     up.forEach(e=>{
-      const d=daysUntil(e.date),cls=d<=7?'urgent':d<=21?'soon':'ok',subj=getSubj(e.sid),div=document.createElement('div');
+      const d=daysUntil(e.date), cls=d<=7?'urgent':d<=21?'soon':'ok', subj=getSubj(e.subjectId), div=document.createElement('div');
       div.className='exam-card';
       div.innerHTML=`<div class="exam-days ${cls}">${d}</div><div class="exam-bar-wrap"><div class="exam-name">${e.name}</div><div class="exam-date">${fmtDate(e.date)} · ${subj?subj.name:''}</div></div>`;
       el.appendChild(div);
@@ -521,244 +718,295 @@ function renderDashboard() {
 // ══════════════════════════════════════════
 //  PLANNER
 // ══════════════════════════════════════════
-let curDay = D.curDay||0;
+let curDay = 0;
 
 function renderPlanner() {
-  $('plan-day-label').textContent=DAYS[curDay];
-  const rd=realDateOfDay(currentWeekKey(),curDay);
-  $('plan-day-date').textContent=rd.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
-  const wk=cw(), c=$('plan-sessions'); c.innerHTML='';
-  D.schedule[curDay].forEach((s,i)=>{
-    const subj=getSubj(s.sid),isDone=wk.done[curDay].includes(i),el=document.createElement('div');
-    el.className='session-item'+(isDone?' done':'');
-    el.innerHTML=`<div class="check-circle">${isDone?'✓':''}</div><div style="flex:1"><div class="s-name">${subj?subj.name:'Rest'}</div><div class="s-detail">${s.topic}</div></div>${s.dur?`<span class="s-dur">${s.dur}m</span>`:''}<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();deleteSession(${i})" style="margin-left:4px">✕</button>`;
-    el.onclick=ev=>{if(ev.target.tagName!=='BUTTON'){toggleDone(curDay,i);renderPlanner();}};
+  $('plan-day-label').textContent = DAYS[curDay];
+  const rd = realDateOfDay(currentWeekKey(), curDay);
+  $('plan-day-date').textContent = rd.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  const sess = sessionsForDay(curDay), comp = currentCompletions(), c = $('plan-sessions');
+  c.innerHTML='';
+  sess.forEach(s=>{
+    const subj=getSubj(s.subjectId), done=!!comp[s.id], el=document.createElement('div');
+    el.className='session-item'+(done?' done':'');
+    el.innerHTML=`<div class="check-circle">${done?'✓':''}</div><div style="flex:1"><div class="s-name">${subj?subj.name:'Rest'}</div><div class="s-detail">${s.topic}</div></div>${s.duration?`<span class="s-dur">${s.duration}m</span>`:''}<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();removeSession('${s.id}')" style="margin-left:4px">✕</button>`;
+    el.onclick=async ev=>{if(ev.target.tagName!=='BUTTON'){await toggleDone(s.id);renderPlanner();}};
     c.appendChild(el);
   });
-  if(!D.schedule[curDay].length) c.innerHTML='<div class="empty">No sessions. Add one with + Session.</div>';
-  const total=D.schedule[curDay].length, dn=wk.done[curDay].length, pct=total?Math.round(dn/total*100):0;
+  if(!sess.length) c.innerHTML='<div class="empty">No sessions. Add one with + Session.</div>';
+  const dn=sess.filter(s=>comp[s.id]).length, pct=sess.length?Math.round(dn/sess.length*100):0;
   $('plan-prog').style.width=pct+'%';
-  $('plan-prog-text').textContent=dn+' of '+total+' sessions done'+(pct===100?' — great work!':'');
+  $('plan-prog-text').textContent=dn+' of '+sess.length+' sessions done'+(pct===100?' — great work!':'');
   updateNoteSubjSel();
 }
 
-function changeDay(dir){curDay=(curDay+dir+7)%7;D.curDay=curDay;save();renderPlanner();}
+function changeDay(dir){ curDay=(curDay+dir+7)%7; renderPlanner(); }
 
-function toggleDone(di,i){
-  const wk=cw(), idx=wk.done[di].indexOf(i);
-  if(idx===-1){wk.done[di].push(i);updateStreak();}
-  else wk.done[di].splice(idx,1);
-  save();
-}
-
-function updateStreak(){
-  const today=new Date().toISOString().slice(0,10);
-  if(D.lastStudyDay!==today){
-    const yd=new Date();yd.setDate(yd.getDate()-1);
-    D.streak=D.lastStudyDay===yd.toISOString().slice(0,10)?D.streak+1:1;
-    D.lastStudyDay=today;save();
-  }
-}
-
-function deleteSession(i){
+async function removeSession(id){
   if(!confirm('Delete this session?'))return;
-  D.schedule[curDay].splice(i,1);
-  const wk=cw(); wk.done[curDay]=wk.done[curDay].filter(x=>x!==i).map(x=>x>i?x-1:x);
-  if(wk.snapshot?.[curDay])wk.snapshot[curDay].splice(i,1);
-  save();renderPlanner();
+  showLoading();
+  try { await api.deleteSession(id); D.sessions=D.sessions.filter(s=>s.id!==id); renderPlanner(); }
+  catch(e){ alert(e.message); } finally { hideLoading(); }
 }
 
 function openAddSession(){
   openModal(`<div class="modal-title">Add session — ${DAYS[curDay]}</div>
-    <div class="form-row"><label style="width:100px;font-size:13px">Subject</label><select id="m-sid" style="flex:1">${D.subjects.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}<option value="rest">Rest</option></select></div>
+    <div class="form-row"><label style="width:100px;font-size:13px">Subject</label><select id="m-sid" style="flex:1">${D.subjects.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}</select></div>
     <div class="form-row"><label style="width:100px;font-size:13px">Topic</label><input type="text" id="m-topic" placeholder="What to study" style="flex:1"></div>
     <div class="form-row"><label style="width:100px;font-size:13px">Duration (min)</label><input type="number" id="m-dur" value="45" min="5" max="180" style="width:80px"></div>
     <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-dark" onclick="confirmAddSession()">Add</button></div>`);
 }
-function confirmAddSession(){
-  const s={sid:$('m-sid').value,topic:$('m-topic').value.trim()||'Study session',dur:parseInt($('m-dur').value)||45};
-  D.schedule[curDay].push(s);
-  const wk=cw(); if(wk.snapshot?.[curDay])wk.snapshot[curDay].push(clone(s));
-  save();closeModal();renderPlanner();
+
+async function confirmAddSession(){
+  const subjectId=$('m-sid').value, topic=$('m-topic').value.trim()||'Study session', duration=parseInt($('m-dur').value)||45;
+  if(!subjectId){alert('Add a subject first');return;}
+  showLoading(); closeModal();
+  try {
+    const s = await api.createSession({dayIndex:curDay, topic, duration, subjectId});
+    s.subject = getSubj(subjectId);
+    D.sessions.push(s);
+    renderPlanner();
+  } catch(e){ alert(e.message); } finally { hideLoading(); }
 }
 
 // ══════════════════════════════════════════
 //  SUBJECTS & TOPICS
 // ══════════════════════════════════════════
 const COLORS=['#0C447C','#27500A','#3C3489','#633806','#A32D2D','#085041','#854F0B','#712B13','#4B1528','#444441'];
-const BGS=['#E6F1FB','#EAF3DE','#EEEDFE','#FAEEDA','#FCEBEB','#E1F5EE','#FAEEDA','#FAECE7','#FBEAF0','#F1EFE8'];
+const BGS   =['#E6F1FB','#EAF3DE','#EEEDFE','#FAEEDA','#FCEBEB','#E1F5EE','#FAEEDA','#FAECE7','#FBEAF0','#F1EFE8'];
 
 function renderSubjects(){
   const sl=$('subj-list'); sl.innerHTML='';
   D.subjects.forEach((s,i)=>{
     const avg=s.topics?.length?Math.round(s.topics.reduce((a,t)=>a+t.pct,0)/s.topics.length):0;
     const row=document.createElement('div'); row.className='subj-row';
-    row.innerHTML=`<div class="subj-color" style="background:${s.color}"></div><div style="flex:1"><div class="subj-name">${s.name}</div><div class="subj-meta">${s.topics?.length||0} topics · ${avg}% done</div></div><button class="btn btn-sm" onclick="editSubj(${i})">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteSubj(${i})">Delete</button>`;
+    row.innerHTML=`<div class="subj-color" style="background:${s.color}"></div><div style="flex:1"><div class="subj-name">${s.name}</div><div class="subj-meta">${s.topics?.length||0} topics · ${avg}% done</div></div><button class="btn btn-sm" onclick="editSubj('${s.id}')">Edit</button><button class="btn btn-sm btn-danger" onclick="removeSubj('${s.id}')">Delete</button>`;
     sl.appendChild(row);
   });
   if(!D.subjects.length) sl.innerHTML='<div class="empty">No subjects yet.</div>';
 }
-function openSubjModal(idx){
-  const editing=idx!==undefined,s=editing?D.subjects[idx]:null;
+
+function openSubjModal(id){
+  const editing=!!id, s=editing?D.subjects.find(x=>x.id===id):null;
   const sc=s?s.color:COLORS[D.subjects.length%COLORS.length];
   const sw=COLORS.map((c,ci)=>`<div class="color-swatch${c===sc?' selected':''}" style="background:${c}" data-bg="${BGS[ci]}" onclick="pickColor(this)"></div>`).join('');
   openModal(`<div class="modal-title">${editing?'Edit':'Add'} subject</div>
     <div class="form-row"><label style="font-size:13px;width:80px">Name</label><input type="text" id="m-sname" value="${s?s.name:''}" style="flex:1" placeholder="Subject name"></div>
     <div class="form-row" style="align-items:flex-start"><label style="font-size:13px;width:80px;margin-top:4px">Color</label><div class="color-picker" id="m-cpicker">${sw}</div></div>
-    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-dark" onclick="confirmSubj(${editing?idx:'undefined'})">Save</button></div>`);
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-dark" onclick="confirmSubj('${id||''}')">Save</button></div>`);
 }
-function editSubj(i){openSubjModal(i);}
-function pickColor(el){document.querySelectorAll('#m-cpicker .color-swatch').forEach(s=>s.classList.remove('selected'));el.classList.add('selected');}
-function getPickedColor(){const s=document.querySelector('#m-cpicker .color-swatch.selected');return s?{color:s.style.background,bg:s.dataset.bg}:{color:COLORS[0],bg:BGS[0]};}
-function confirmSubj(idx){
-  const name=$('m-sname').value.trim();if(!name)return alert('Enter a name');
+function editSubj(id){ openSubjModal(id); }
+function pickColor(el){ document.querySelectorAll('#m-cpicker .color-swatch').forEach(s=>s.classList.remove('selected')); el.classList.add('selected'); }
+function getPickedColor(){ const s=document.querySelector('#m-cpicker .color-swatch.selected'); return s?{color:s.style.background,bg:s.dataset.bg}:{color:COLORS[0],bg:BGS[0]}; }
+
+async function confirmSubj(id){
+  const name=$('m-sname').value.trim(); if(!name)return alert('Enter a name');
   const {color,bg}=getPickedColor();
-  if(idx!==undefined&&idx!=='undefined')Object.assign(D.subjects[idx],{name,color,bg});
-  else D.subjects.push({id:genId(),name,color,bg,topics:[]});
-  save();closeModal();renderSubjects();renderTopicSelector();
+  showLoading(); closeModal();
+  try {
+    if(id) {
+      const updated = await api.updateSubject(id,{name,color,bg});
+      const idx=D.subjects.findIndex(s=>s.id===id);
+      if(idx>=0){ D.subjects[idx]={...D.subjects[idx],...updated}; }
+    } else {
+      const created = await api.createSubject({name,color,bg});
+      created.topics=[];
+      D.subjects.push(created);
+    }
+    renderSubjects(); renderTopicSelector();
+  } catch(e){ alert(e.message); } finally { hideLoading(); }
 }
-function deleteSubj(i){if(!confirm('Delete this subject?'))return;D.subjects.splice(i,1);save();renderSubjects();renderTopicSelector();}
+
+async function removeSubj(id){
+  if(!confirm('Delete this subject? All related sessions and notes will also be deleted.'))return;
+  showLoading();
+  try {
+    await api.deleteSubject(id);
+    D.subjects=D.subjects.filter(s=>s.id!==id);
+    D.sessions=D.sessions.filter(s=>s.subjectId!==id);
+    renderSubjects(); renderTopicSelector(); renderPlanner();
+  } catch(e){ alert(e.message); } finally { hideLoading(); }
+}
 
 function renderTopicSelector(){
   [$('topic-subj-sel'),$('note-subj-sel')].forEach(sel=>{if(!sel)return;sel.innerHTML=D.subjects.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');});
   const nf=$('note-filter');if(nf)nf.innerHTML='<option value="">All subjects</option>'+D.subjects.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
   renderTopics();
 }
+
 function renderTopics(){
-  const sel=$('topic-subj-sel');if(!sel)return;
-  const subj=getSubj(sel.value),tl=$('topic-list');tl.innerHTML='';
+  const sel=$('topic-subj-sel'); if(!sel)return;
+  const subj=D.subjects.find(s=>s.id===sel.value), tl=$('topic-list'); tl.innerHTML='';
   if(!subj)return;
   (subj.topics||[]).forEach((t,i)=>{
-    const row=document.createElement('div');row.className='topic-row';
+    const row=document.createElement('div'); row.className='topic-row';
     row.innerHTML=`<div class="topic-name">${t.name}</div><input type="range" min="0" max="100" step="5" value="${t.pct}" style="flex:0 0 100px" oninput="updateTopicPct('${subj.id}',${i},this.value)"><div class="topic-pct" id="tp-${i}" style="color:${subj.color}">${t.pct}%</div><button class="btn btn-sm btn-danger" onclick="deleteTopic('${subj.id}',${i})">✕</button>`;
     tl.appendChild(row);
   });
   if(!subj.topics?.length) tl.innerHTML='<div class="empty">No topics yet.</div>';
 }
+
 function addTopic(){
-  const sid=$('topic-subj-sel').value,subj=getSubj(sid);if(!subj)return;
+  const sid=$('topic-subj-sel')?.value, subj=D.subjects.find(s=>s.id===sid); if(!subj)return;
   openModal(`<div class="modal-title">Add topic to ${subj.name}</div><div class="form-row"><input type="text" id="m-tname" style="flex:1" placeholder="Topic name"></div><div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-dark" onclick="confirmTopic('${sid}')">Add</button></div>`);
 }
-function confirmTopic(sid){
-  const name=$('m-tname').value.trim();if(!name)return;
-  const subj=getSubj(sid);if(!subj)return;
+
+async function confirmTopic(sid){
+  const name=$('m-tname').value.trim(); if(!name)return;
+  const subj=D.subjects.find(s=>s.id===sid); if(!subj)return;
   if(!subj.topics)subj.topics=[];
-  subj.topics.push({name,pct:0});save();closeModal();renderTopics();
+  subj.topics.push({name,pct:0});
+  closeModal(); showLoading();
+  try { await api.saveTopics(sid, subj.topics); renderTopics(); }
+  catch(e){ alert(e.message); } finally { hideLoading(); }
 }
-function updateTopicPct(sid,i,val){
-  const subj=getSubj(sid);if(!subj?.topics[i])return;
+
+async function updateTopicPct(sid,i,val){
+  const subj=D.subjects.find(s=>s.id===sid); if(!subj?.topics[i])return;
   subj.topics[i].pct=parseInt(val);
-  const el=$('tp-'+i);if(el)el.textContent=val+'%';
-  save();
+  const el=$('tp-'+i); if(el)el.textContent=val+'%';
+  // debounce save — wait 600ms after last change
+  clearTimeout(updateTopicPct._t);
+  updateTopicPct._t=setTimeout(async()=>{ try{ await api.saveTopics(sid,subj.topics); }catch(e){} },600);
 }
-function deleteTopic(sid,i){const subj=getSubj(sid);if(!subj)return;subj.topics.splice(i,1);save();renderTopics();}
+
+async function deleteTopic(sid,i){
+  const subj=D.subjects.find(s=>s.id===sid); if(!subj)return;
+  subj.topics.splice(i,1); showLoading();
+  try { await api.saveTopics(sid,subj.topics); renderTopics(); }
+  catch(e){ alert(e.message); } finally { hideLoading(); }
+}
 
 // ══════════════════════════════════════════
 //  EXAMS
 // ══════════════════════════════════════════
 function renderExams(){
-  const el=$('exam-list');el.innerHTML='';
+  const el=$('exam-list'); el.innerHTML='';
   [...D.exams].sort((a,b)=>daysUntil(a.date)-daysUntil(b.date)).forEach(e=>{
-    const d=daysUntil(e.date),cls=d<0?'':d<=7?'urgent':d<=21?'soon':'ok',subj=getSubj(e.sid),ri=D.exams.indexOf(e),div=document.createElement('div');
+    const d=daysUntil(e.date), cls=d<0?'':d<=7?'urgent':d<=21?'soon':'ok', subj=getSubj(e.subjectId), div=document.createElement('div');
     div.className='exam-card';
-    div.innerHTML=`<div class="exam-days ${cls}">${d<0?'✓':d}</div><div class="exam-bar-wrap"><div class="exam-name">${e.name}</div><div class="exam-date">${fmtDate(e.date)} · ${subj?subj.name:'Unknown'}</div><div style="margin-top:6px"><div class="prog-wrap" style="margin:0"><div class="prog-bar" style="width:${e.prep||0}%;background:${subj?subj.color:'var(--green)'}"></div></div><div style="font-size:11px;color:var(--faint);margin-top:2px">Preparation: ${e.prep||0}%</div></div></div><div style="display:flex;flex-direction:column;gap:4px"><button class="btn btn-sm" onclick="editExam(${ri})">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteExam(${ri})">Del</button></div>`;
+    div.innerHTML=`<div class="exam-days ${cls}">${d<0?'✓':d}</div><div class="exam-bar-wrap"><div class="exam-name">${e.name}</div><div class="exam-date">${fmtDate(e.date)} · ${subj?subj.name:'Unknown'}</div><div style="margin-top:6px"><div class="prog-wrap" style="margin:0"><div class="prog-bar" style="width:${e.preparation||0}%;background:${subj?subj.color:'var(--green)'}"></div></div><div style="font-size:11px;color:var(--faint);margin-top:2px">Preparation: ${e.preparation||0}%</div></div></div><div style="display:flex;flex-direction:column;gap:4px"><button class="btn btn-sm" onclick="editExam('${e.id}')">Edit</button><button class="btn btn-sm btn-danger" onclick="removeExam('${e.id}')">Del</button></div>`;
     el.appendChild(div);
   });
-  if(!D.exams.length)el.innerHTML='<div class="empty">No exams yet.</div>';
+  if(!D.exams.length) el.innerHTML='<div class="empty">No exams yet.</div>';
   renderExamTimeline();
 }
+
 function renderExamTimeline(){
-  const tl=$('exam-timeline');tl.innerHTML='';
+  const tl=$('exam-timeline'); tl.innerHTML='';
   const up=D.exams.filter(e=>daysUntil(e.date)>=0).sort((a,b)=>daysUntil(a.date)-daysUntil(b.date));
   if(!up.length){tl.innerHTML='<div class="empty">No upcoming exams</div>';return;}
   const maxD=daysUntil(up[up.length-1].date)||1;
   up.forEach(e=>{
-    const d=daysUntil(e.date),pct=Math.round(d/maxD*100),subj=getSubj(e.sid),row=document.createElement('div');
+    const d=daysUntil(e.date),pct=Math.round(d/maxD*100),subj=getSubj(e.subjectId),row=document.createElement('div');
     row.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:13px';
     row.innerHTML=`<div style="width:90px;text-align:right;color:var(--muted)">${d}d away</div><div style="flex:1;position:relative;height:24px;background:var(--surface2);border-radius:4px;overflow:hidden"><div style="position:absolute;left:0;top:0;height:100%;width:${100-pct}%;background:${subj?subj.bg:'var(--green-bg)'};border-right:2px solid ${subj?subj.color:'var(--green)'};display:flex;align-items:center;justify-content:flex-end;padding-right:6px"><span style="font-size:11px;font-weight:500;color:${subj?subj.color:'var(--green)'}">${e.name}</span></div></div>`;
     tl.appendChild(row);
   });
 }
-function openExamModal(idx){
-  const editing=idx!==undefined,e=editing?D.exams[idx]:null;
+
+function openExamModal(id){
+  const editing=!!id, e=editing?D.exams.find(x=>x.id===id):null;
   openModal(`<div class="modal-title">${editing?'Edit':'Add'} exam</div>
     <div class="form-row"><label style="font-size:13px;width:90px">Name</label><input type="text" id="m-ename" value="${e?e.name:''}" style="flex:1" placeholder="e.g. DL Final"></div>
-    <div class="form-row"><label style="font-size:13px;width:90px">Subject</label><select id="m-esid" style="flex:1">${D.subjects.map(s=>`<option value="${s.id}"${e?.sid===s.id?' selected':''}>${s.name}</option>`).join('')}</select></div>
+    <div class="form-row"><label style="font-size:13px;width:90px">Subject</label><select id="m-esid" style="flex:1">${D.subjects.map(s=>`<option value="${s.id}"${e?.subjectId===s.id?' selected':''}>${s.name}</option>`).join('')}</select></div>
     <div class="form-row"><label style="font-size:13px;width:90px">Date</label><input type="date" id="m-edate" value="${e?e.date:''}" style="flex:1"></div>
-    <div class="form-row"><label style="font-size:13px;width:90px">Preparation %</label><input type="number" id="m-eprep" value="${e?.prep||0}" min="0" max="100" style="width:70px"></div>
-    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-dark" onclick="confirmExam(${editing?idx:'undefined'})">Save</button></div>`);
+    <div class="form-row"><label style="font-size:13px;width:90px">Preparation %</label><input type="number" id="m-eprep" value="${e?.preparation||0}" min="0" max="100" style="width:70px"></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-dark" onclick="confirmExam('${id||''}')">Save</button></div>`);
 }
-function editExam(i){openExamModal(i);}
-function confirmExam(idx){
-  const name=$('m-ename').value.trim();if(!name)return alert('Enter a name');
-  const date=$('m-edate').value;if(!date)return alert('Pick a date');
-  const obj={name,sid:$('m-esid').value,date,prep:parseInt($('m-eprep').value)||0};
-  if(idx!==undefined&&idx!=='undefined')D.exams[idx]=obj;else D.exams.push(obj);
-  save();closeModal();renderExams();
+function editExam(id){ openExamModal(id); }
+
+async function confirmExam(id){
+  const name=$('m-ename').value.trim(); if(!name)return alert('Enter a name');
+  const date=$('m-edate').value; if(!date)return alert('Pick a date');
+  const obj={name,subjectId:$('m-esid').value,date,preparation:parseInt($('m-eprep').value)||0};
+  showLoading(); closeModal();
+  try {
+    if(id){ const u=await api.updateExam(id,obj); const idx=D.exams.findIndex(e=>e.id===id); if(idx>=0)D.exams[idx]={...D.exams[idx],...u}; }
+    else { const created=await api.createExam(obj); D.exams.push(created); }
+    renderExams();
+  } catch(e){ alert(e.message); } finally { hideLoading(); }
 }
-function deleteExam(i){if(!confirm('Delete?'))return;D.exams.splice(i,1);save();renderExams();}
+
+async function removeExam(id){
+  if(!confirm('Delete?'))return; showLoading();
+  try { await api.deleteExam(id); D.exams=D.exams.filter(e=>e.id!==id); renderExams(); }
+  catch(e){ alert(e.message); } finally { hideLoading(); }
+}
 
 // ══════════════════════════════════════════
 //  NOTES
 // ══════════════════════════════════════════
-function updateNoteSubjSel(){const sel=$('note-subj-sel');if(!sel)return;sel.innerHTML=D.subjects.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');}
-function saveQuickNote(){
-  const text=$('quick-note-text').value.trim();if(!text)return;
-  const sid=$('note-subj-sel').value,subj=getSubj(sid);
-  D.notes.unshift({id:genId(),sid,subjName:subj?subj.name:'Unknown',subjColor:subj?subj.color:'#888',text,date:new Date().toISOString()});
-  $('quick-note-text').value='';save();alert('Note saved!');
+function updateNoteSubjSel(){ const sel=$('note-subj-sel'); if(!sel)return; sel.innerHTML=D.subjects.map(s=>`<option value="${s.id}">${s.name}</option>`).join(''); }
+
+async function saveQuickNote(){
+  const text=$('quick-note-text').value.trim(); if(!text)return;
+  const subjectId=$('note-subj-sel').value;
+  showLoading();
+  try {
+    const note=await api.createNote({text,subjectId});
+    note.subject=getSubj(subjectId);
+    D.notes.unshift(note);
+    $('quick-note-text').value='';
+    alert('Note saved!');
+  } catch(e){ alert(e.message); } finally { hideLoading(); }
 }
+
 function renderNotes(){
-  const nl=$('notes-list');if(!nl)return;
+  const nl=$('notes-list'); if(!nl)return;
   const filter=$('note-filter')?.value||'';
-  const notes=filter?D.notes.filter(n=>n.sid===filter):D.notes;
+  const notes=filter?D.notes.filter(n=>n.subjectId===filter):D.notes;
   nl.innerHTML='';
   if(!notes.length){nl.innerHTML='<div class="empty">No notes yet.</div>';return;}
   notes.forEach(n=>{
-    const d=new Date(n.date),div=document.createElement('div');div.className='note-entry';
-    div.innerHTML=`<div class="note-meta"><span style="color:${n.subjColor};font-weight:500">${n.subjName}</span><span>${d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})} at ${d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span><div class="spacer"></div><button class="btn btn-sm btn-danger" onclick="deleteNote('${n.id}')">Delete</button></div><div class="note-text">${n.text.replace(/\n/g,'<br>')}</div>`;
+    const subj=getSubj(n.subjectId), d=new Date(n.createdAt), div=document.createElement('div'); div.className='note-entry';
+    div.innerHTML=`<div class="note-meta"><span style="color:${subj?subj.color:'#888'};font-weight:500">${subj?subj.name:'Unknown'}</span><span>${d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})} at ${d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span><div class="spacer"></div><button class="btn btn-sm btn-danger" onclick="removeNote('${n.id}')">Delete</button></div><div class="note-text">${n.text.replace(/\n/g,'<br>')}</div>`;
     nl.appendChild(div);
   });
 }
-function deleteNote(id){if(!confirm('Delete?'))return;D.notes=D.notes.filter(n=>n.id!==id);save();renderNotes();}
+
+async function removeNote(id){
+  if(!confirm('Delete?'))return; showLoading();
+  try { await api.deleteNote(id); D.notes=D.notes.filter(n=>n.id!==id); renderNotes(); }
+  catch(e){ alert(e.message); } finally { hideLoading(); }
+}
 
 // ══════════════════════════════════════════
-//  POMODORO
+//  POMODORO  (stays local — no API needed)
 // ══════════════════════════════════════════
 let PA={r:false,iv:null,f:25,b:5,s:25*60,brk:false,c:464.96};
 let PB={r:false,iv:null,f:25,b:5,s:25*60,brk:false,c:578.05};
+
+function savePomo(){ localStorage.setItem('sp_pomo',JSON.stringify({pomodoros:D.pomodoros,pomoToday:D.pomoToday,pomoDayStamp:D.pomoDayStamp,pomoLog:D.pomoLog})); }
 
 function uPomo(p,ids){
   $(ids.t).textContent=fmtSecs(p.s);
   $(ids.ph).textContent=p.brk?'BREAK':'FOCUS';
   if($(ids.rg)){const pct=p.s/((p.brk?p.b:p.f)*60);$(ids.rg).style.strokeDashoffset=p.c*(1-pct);}
   $(ids.st).textContent=p.r?'Pause':'Start';
-  if(ids.ct){const today=new Date().toISOString().slice(0,10);if(D.pomoDayStamp!==today){D.pomoToday=0;D.pomoDayStamp=today;save();}$(ids.ct).textContent='Pomodoros today: '+D.pomoToday;}
+  if(ids.ct){const today=new Date().toISOString().slice(0,10);if(D.pomoDayStamp!==today){D.pomoToday=0;D.pomoDayStamp=today;savePomo();}$(ids.ct).textContent='Pomodoros today: '+D.pomoToday;}
   if(ids.tot)$(ids.tot).textContent='Total all-time: '+D.pomodoros;
 }
 function tickP(p,ids){
   p.s--;
   if(p.s<=0){
-    if(!p.brk){D.pomodoros++;D.pomoToday++;D.pomoDayStamp=new Date().toISOString().slice(0,10);D.pomoLog.unshift({date:new Date().toISOString(),dur:p.f});save();if($('pomo-sound')?.checked)beep();}
+    if(!p.brk){D.pomodoros++;D.pomoToday++;D.pomoDayStamp=new Date().toISOString().slice(0,10);D.pomoLog.unshift({date:new Date().toISOString(),dur:p.f});savePomo();if($('pomo-sound')?.checked)beep();}
     p.brk=!p.brk;p.s=(p.brk?p.b:p.f)*60;
   }
   uPomo(p,ids);
 }
 const IDA={t:'plan-pomo-time',rg:'plan-pomo-ring',ph:'plan-pomo-phase',st:'plan-pomo-start',ct:'plan-pomo-count'};
 const IDB={t:'pomo-time2',rg:'pomo-ring',ph:'pomo-phase2',st:'pomo-start2',ct:'pomo-count2',tot:'pomo-total'};
-
 function togglePomoA(){if(PA.r){clearInterval(PA.iv);PA.r=false;}else{PA.r=true;PA.iv=setInterval(()=>tickP(PA,IDA),1000);}uPomo(PA,IDA);}
 function resetPomoA(){clearInterval(PA.iv);PA.r=false;PA.brk=false;PA.s=PA.f*60;uPomo(PA,IDA);}
 function setPomoA(f,b){PA.f=f;PA.b=b;clearInterval(PA.iv);PA.r=false;PA.brk=false;PA.s=f*60;uPomo(PA,IDA);}
-
 function togglePomoB(){if(PB.r){clearInterval(PB.iv);PB.r=false;}else{PB.r=true;PB.iv=setInterval(()=>tickP(PB,IDB),1000);}uPomo(PB,IDB);}
 function resetPomoB(){clearInterval(PB.iv);PB.r=false;PB.brk=false;PB.s=PB.f*60;uPomo(PB,IDB);}
 function setPomoB(f,b){PB.f=f;PB.b=b;clearInterval(PB.iv);PB.r=false;PB.brk=false;PB.s=f*60;uPomo(PB,IDB);}
 function applyPomoSettings(){setPomoB(parseInt($('pomo-focus-input').value)||25,parseInt($('pomo-break-input').value)||5);}
-
 function renderPomoPage(){
   uPomo(PB,IDB);
-  const pl=$('pomo-log');pl.innerHTML='';
+  const pl=$('pomo-log'); pl.innerHTML='';
   if(!D.pomoLog.length){pl.innerHTML='<div class="empty">No pomodoros yet.</div>';return;}
   D.pomoLog.slice(0,10).forEach(p=>{
     const d=new Date(p.date),row=document.createElement('div');
@@ -772,109 +1020,86 @@ function beep(){try{const ctx=new(window.AudioContext||window.webkitAudioContext
 // ══════════════════════════════════════════
 //  STATISTICS
 // ══════════════════════════════════════════
-function renderStats() {
-  ensureWeek();
-  const keys = Object.keys(D.weekHistory).sort(); // oldest → newest
-  const curKey = currentWeekKey();
-  const sl = $('stats-list'); sl.innerHTML='';
-  const chart = $('stats-chart'); chart.innerHTML='';
-
-  let totalComp=0, bestPct=0, sumPct=0;
+function renderStats(){
+  const keys=Object.keys(D.weekHistory).sort();
+  const curKey=currentWeekKey();
+  const sl=$('stats-list'); sl.innerHTML='';
+  const chart=$('stats-chart'); chart.innerHTML='';
+  let totalComp=0,bestPct=0,sumPct=0;
 
   keys.forEach(wk=>{
-    const wh=D.weekHistory[wk];
-    const snap=wh.snapshot||D.schedule;
-    const done=wh.done||freshDone();
-
-    let total=0,comp=0;
-    snap.forEach((ds,di)=>{total+=ds.length;comp+=done[di].length;});
-    const pct=total?Math.round(comp/total*100):0;
-    totalComp+=comp; sumPct+=pct; if(pct>bestPct)bestPct=pct;
+    const comp=D.weekHistory[wk]?.completions||{};
+    // get sessions that existed during that week
+    // (we use current sessions as approximation since we don't snapshot them server-side yet)
+    let total=0, done=0;
+    DAYS.forEach((_,di)=>{
+      const daySess=sessionsForDay(di);
+      total+=daySess.length;
+      done+=daySess.filter(s=>comp[s.id]).length;
+    });
+    const pct=total?Math.round(done/total*100):0;
+    totalComp+=done; sumPct+=pct; if(pct>bestPct)bestPct=pct;
 
     // chart bar
     const barColor=pct===100?'var(--green)':pct>=60?'var(--amber)':'var(--red)';
-    const barH=Math.max(pct,4);
     const bc=document.createElement('div');
     bc.style.cssText='display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-width:36px;max-width:60px';
-    bc.innerHTML=`<div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace">${pct}%</div>
-      <div style="width:100%;border-radius:3px 3px 0 0;height:${barH}px;background:${barColor};transition:height .4s" title="${weekRangeLabel(wk)}"></div>
-      <div style="font-size:10px;color:var(--faint);text-align:center;writing-mode:vertical-rl;transform:rotate(180deg);height:40px;overflow:hidden">${new Date(wk+'T00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>`;
+    bc.innerHTML=`<div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace">${pct}%</div><div style="width:100%;border-radius:3px 3px 0 0;height:${Math.max(pct,4)}px;background:${barColor};transition:height .4s" title="${weekRangeLabel(wk)}"></div><div style="font-size:10px;color:var(--faint);text-align:center;writing-mode:vertical-rl;transform:rotate(180deg);height:40px;overflow:hidden">${new Date(wk+'T00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>`;
     chart.appendChild(bc);
 
-    // expandable week card
-    const isCurrent=wk===curKey;
-    const pctColor=pct===100?'var(--green)':pct>=60?'var(--amber)':'var(--red)';
-    const card=document.createElement('div'); card.className='week-history-card';
-
-    // build day rows HTML
+    // week card
+    const isCurrent=wk===curKey, pctColor=pct===100?'var(--green)':pct>=60?'var(--amber)':'var(--red)';
     let bodyHTML='';
     DAYS.forEach((dayName,di)=>{
-      const daySess=snap[di]||[];
-      const rd=realDateOfDay(wk,di);
-      const dateStr=rd.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-      const pills=daySess.map((s,i)=>{
-        const subj=getSubj(s.sid);
-        const isDone=done[di].includes(i);
+      const rd=realDateOfDay(wk,di), dateStr=rd.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+      const daySess=sessionsForDay(di);
+      const pills=daySess.map(s=>{
+        const subj=getSubj(s.subjectId), isDone=!!comp[s.id];
         const bg=subj?subj.bg:'#f0f0ec', color=subj?subj.color:'#888';
         return `<div class="hist-pill${isDone?'':' undone'}" style="background:${bg};color:${color}">${isDone?'✓ ':''}${subj?subj.name:'Rest'}<span style="font-weight:400;opacity:.75"> · ${s.topic}</span></div>`;
       }).join('');
-      bodyHTML+=`<div class="hist-day-row">
-        <div class="hist-day-name">${dayName}<div style="font-size:11px;color:var(--faint);font-weight:400">${dateStr}</div></div>
-        <div class="hist-sessions">${pills||'<span style="font-size:12px;color:var(--faint)">No sessions</span>'}</div>
-      </div>`;
+      bodyHTML+=`<div class="hist-day-row"><div class="hist-day-name">${dayName}<div style="font-size:11px;color:var(--faint);font-weight:400">${dateStr}</div></div><div class="hist-sessions">${pills||'<span style="font-size:12px;color:var(--faint)">No sessions</span>'}</div></div>`;
     });
 
+    const card=document.createElement('div'); card.className='week-history-card';
     card.innerHTML=`<div class="week-history-header" onclick="toggleWeek(this)">
-      <div style="flex:1">
-        <div style="font-weight:500;font-size:14px">${weekRangeLabel(wk)}${isCurrent?' <span style="font-size:11px;color:var(--green);margin-left:6px">current week</span>':''}</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:2px">${comp} of ${total} sessions completed · ${DAYS.filter((_,di)=>done[di].length>0).length} active days</div>
-      </div>
+      <div style="flex:1"><div style="font-weight:500;font-size:14px">${weekRangeLabel(wk)}${isCurrent?' <span style="font-size:11px;color:var(--green);margin-left:6px">current week</span>':''}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px">${done} of ${total} sessions completed</div></div>
       <div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:${pctColor}">${pct}%</div>
-      <div style="margin-left:10px;font-size:13px;color:var(--faint)" id="arr-${wk}">${isCurrent?'▲':'▼'}</div>
+      <div style="margin-left:10px;font-size:13px;color:var(--faint)">${isCurrent?'▲':'▼'}</div>
     </div>
-    <div class="week-history-body${isCurrent?' open':''}" id="body-${wk}">${bodyHTML}</div>`;
+    <div class="week-history-body${isCurrent?' open':''}">${bodyHTML}</div>`;
     sl.appendChild(card);
   });
 
-  // stats summary
   const wc=keys.length;
   $('stats-weeks').textContent=wc;
   $('stats-total').textContent=totalComp;
   $('stats-best').textContent=bestPct+'%';
   $('stats-avg').textContent=(wc?Math.round(sumPct/wc):0)+'%';
-
-  if(!wc) sl.innerHTML='<div class="empty">No week data yet — start ticking sessions and they\'ll appear here each week.</div>';
-
-  // reverse list so newest is on top
+  if(!wc) sl.innerHTML='<div class="empty">No week data yet — start ticking sessions!</div>';
   const cards=[...sl.children]; cards.reverse().forEach(c=>sl.appendChild(c));
 }
 
-function toggleWeek(header){
-  const body=header.nextElementSibling;
-  body.classList.toggle('open');
-  // find arrow span (last child of header)
-  const arr=header.querySelector('[id^="arr-"]');
-  if(arr) arr.textContent=body.classList.contains('open')?'▲':'▼';
-}
+function toggleWeek(header){ const body=header.nextElementSibling; body.classList.toggle('open'); }
 
 // ══════════════════════════════════════════
 //  MODAL
 // ══════════════════════════════════════════
-function openModal(html){$('modal-content').innerHTML=html;$('modal-overlay').classList.add('open');}
-function closeModal(){$('modal-overlay').classList.remove('open');}
+function openModal(html){ $('modal-content').innerHTML=html; $('modal-overlay').classList.add('open'); }
+function closeModal(){ $('modal-overlay').classList.remove('open'); }
 
 // ══════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════
-function init(){
-  ensureWeek();
-  renderDashboard();
-  renderPlanner();
-  updateNoteSubjSel();
-  uPomo(PA,IDA);
-  uPomo(PB,IDB);
-}
-document.addEventListener('DOMContentLoaded',init);
+document.addEventListener('DOMContentLoaded', () => {
+  const token = getToken();
+  if (token) {
+    bootApp();
+  } else {
+    $('auth-screen').classList.add('visible');
+  }
+});
 </script>
 </body>
 </html>
