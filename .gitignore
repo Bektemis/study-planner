@@ -1,0 +1,10 @@
+node_modules/
+.env
+prisma/migrations/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json

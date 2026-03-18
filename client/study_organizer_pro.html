@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Planner Pro — ICT & Internet Engineering</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f7f5f0;--surface:#fff;--surface2:#f2f0eb;--border:#e0ddd5;--border2:#c8c4ba;
+  --text:#1a1916;--muted:#6b6760;--faint:#9b9890;
+  --green:#3B6D11;--green-bg:#EAF3DE;--red:#A32D2D;--red-bg:#FCEBEB;--amber:#854F0B;--amber-bg:#FAEEDA;
+  --radius:10px;--shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Instrument Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+.app-header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;gap:2rem;height:56px;position:sticky;top:0;z-index:100;flex-wrap:wrap}
+.logo{font-family:'Crimson Pro',serif;font-size:20px;font-weight:600;letter-spacing:-.3px;white-space:nowrap}
+.logo span{color:var(--muted);font-weight:400}
+.nav{display:flex;gap:0;flex-wrap:wrap}
+.nav-btn{padding:6px 14px;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-size:13px;font-family:'Instrument Sans',sans-serif;color:var(--muted);margin-bottom:-1px;transition:color .15s,border-color .15s}
+.nav-btn:hover{color:var(--text)}
+.nav-btn.active{color:var(--text);border-bottom-color:var(--text);font-weight:500}
+.content{flex:1;padding:2rem;max-width:1100px;margin:0 auto;width:100%}
+.page{display:none}.page.active{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow)}
+.card-title{font-family:'Crimson Pro',serif;font-size:17px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.section-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
+.grid-7{display:grid;grid-template-columns:repeat(7,1fr);gap:.5rem}
+.stat-chip{background:var(--surface2);border-radius:8px;padding:12px 16px}
+.stat-val{font-size:26px;font-family:'Crimson Pro',serif;font-weight:600;line-height:1}
+.stat-lbl{font-size:12px;color:var(--muted);margin-top:2px}
+.session-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;transition:background .1s;background:var(--surface)}
+.session-item:hover{background:var(--surface2)}
+.session-item.done{opacity:.55}
+.session-item.done .s-name{text-decoration:line-through}
+.check-circle{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;transition:all .15s}
+.session-item.done .check-circle{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.s-name{font-weight:500;font-size:14px}.s-detail{font-size:12px;color:var(--muted)}
+.s-dur{font-size:12px;color:var(--faint);margin-left:auto;white-space:nowrap;font-family:'DM Mono',monospace}
+.prog-wrap{background:var(--surface2);border-radius:8px;height:6px;overflow:hidden;margin:10px 0 4px}
+.prog-bar{height:6px;border-radius:8px;background:var(--green);transition:width .4s}
+.prog-text{font-size:12px;color:var(--muted)}
+.week-day-col{text-align:center}
+.week-day-name{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.week-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin:0 1px}
+.exam-card{border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;background:var(--surface)}
+.exam-days{font-family:'Crimson Pro',serif;font-size:36px;font-weight:600;line-height:1;min-width:52px;text-align:center}
+.exam-days.urgent{color:var(--red)}.exam-days.soon{color:var(--amber)}.exam-days.ok{color:var(--green)}
+.exam-name{font-weight:500;font-size:14px}.exam-date{font-size:12px;color:var(--muted)}.exam-bar-wrap{flex:1}
+.note-entry{border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;background:var(--surface)}
+.note-meta{font-size:11px;color:var(--faint);margin-bottom:4px;display:flex;gap:8px;align-items:center}
+.note-text{font-size:13px;line-height:1.6}
+.topic-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.topic-row:last-child{border-bottom:none}
+.topic-name{flex:1}.topic-pct{font-family:'DM Mono',monospace;font-size:12px;min-width:36px;text-align:right}
+.mini-prog-wrap{flex:0 0 80px;background:var(--surface2);border-radius:4px;height:5px;overflow:hidden}
+.mini-prog{height:5px;border-radius:4px;transition:width .3s}
+.subj-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;background:var(--surface)}
+.subj-color{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+.subj-name{flex:1;font-weight:500;font-size:14px}.subj-meta{font-size:12px;color:var(--muted)}
+.pomo-btn{padding:8px 24px;border-radius:20px;border:1px solid var(--border2);background:var(--surface);cursor:pointer;font-size:13px;font-family:'Instrument Sans',sans-serif;font-weight:500;transition:background .1s;margin:4px}
+.pomo-btn:hover{background:var(--surface2)}
+.pomo-btn.primary{background:var(--text);color:var(--surface);border-color:var(--text)}
+.pomo-btn.primary:hover{opacity:.85}
+.pomo-time{font-family:'DM Mono',monospace;font-size:32px;font-weight:500;letter-spacing:-1px}
+.pomo-phase{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.05em}
+.form-row{display:flex;gap:8px;margin-bottom:10px;align-items:center;flex-wrap:wrap}
+input[type=text],input[type=date],input[type=number],select,textarea{font-family:'Instrument Sans',sans-serif;font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:7px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--text)}
+textarea{resize:vertical;min-height:70px;width:100%}
+.btn{padding:7px 18px;border-radius:7px;border:1px solid var(--border2);background:var(--surface);cursor:pointer;font-size:13px;font-family:'Instrument Sans',sans-serif;font-weight:500;color:var(--text);transition:background .1s;white-space:nowrap}
+.btn:hover{background:var(--surface2)}
+.btn-dark{background:var(--text);color:var(--surface);border-color:var(--text)}
+.btn-dark:hover{opacity:.85}
+.btn-sm{padding:4px 12px;font-size:12px}
+.btn-danger{color:var(--red);border-color:#f7c1c1}
+.btn-danger:hover{background:var(--red-bg)}
+.modal-overlay{position:fixed;inset:0;background:rgba(26,25,22,.4);z-index:999;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--radius);padding:1.5rem;width:480px;max-width:95vw;border:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,.12)}
+.modal-title{font-family:'Crimson Pro',serif;font-size:19px;font-weight:600;margin-bottom:1rem}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:1rem}
+.day-nav{display:flex;align-items:center;gap:10px;margin-bottom:1rem}
+.day-nav-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background .1s}
+.day-nav-btn:hover{background:var(--surface2)}
+.day-label{font-family:'Crimson Pro',serif;font-size:20px;font-weight:600;flex:1}
+.day-date{font-size:13px;color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center}.spacer{flex:1}
+.empty{text-align:center;padding:2rem;color:var(--faint);font-size:13px}
+.color-picker{display:flex;gap:6px;flex-wrap:wrap}
+.color-swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color .1s}
+.color-swatch.selected{border-color:var(--text)}
+
+/* ── STATS ── */
+.week-history-card{border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden;background:var(--surface)}
+.week-history-header{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;user-select:none;transition:background .1s}
+.week-history-header:hover{background:var(--surface2)}
+.week-history-body{padding:0 16px 14px;display:none}
+.week-history-body.open{display:block}
+.hist-day-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.hist-day-row:last-child{border-bottom:none}
+.hist-day-name{width:90px;font-weight:500;flex-shrink:0;padding-top:2px}
+.hist-sessions{display:flex;flex-wrap:wrap;gap:6px;flex:1}
+.hist-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;line-height:1.4}
+.hist-pill.undone{opacity:.35;text-decoration:line-through}
+
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+@media(max-width:700px){.grid-2,.grid-4{grid-template-columns:1fr}.grid-7{grid-template-columns:repeat(4,1fr)}.content{padding:1rem}.app-header{padding:0 1rem;gap:1rem}}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="logo">Study<span>Planner</span></div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showPage('dashboard',this)">Dashboard</button>
+    <button class="nav-btn" onclick="showPage('planner',this)">Daily Planner</button>
+    <button class="nav-btn" onclick="showPage('subjects',this)">Subjects</button>
+    <button class="nav-btn" onclick="showPage('exams',this)">Exams</button>
+    <button class="nav-btn" onclick="showPage('notes',this)">Notes</button>
+    <button class="nav-btn" onclick="showPage('pomodoro',this)">Pomodoro</button>
+    <button class="nav-btn" onclick="showPage('stats',this)">Statistics</button>
+  </nav>
+</header>
+
+<main class="content">
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="page-dashboard" class="page active">
+  <div style="margin-bottom:1.5rem">
+    <div style="font-family:'Crimson Pro',serif;font-size:26px;font-weight:600" id="dash-greeting">Good morning</div>
+    <div style="font-size:13px;color:var(--muted)" id="dash-date"></div>
+  </div>
+  <div class="grid-4" style="margin-bottom:1.5rem">
+    <div class="stat-chip"><div class="stat-val" id="dash-streak">0</div><div class="stat-lbl">day streak</div></div>
+    <div class="stat-chip"><div class="stat-val" id="dash-today">0/0</div><div class="stat-lbl">today's sessions</div></div>
+    <div class="stat-chip"><div class="stat-val" id="dash-subjects">0</div><div class="stat-lbl">subjects</div></div>
+    <div class="stat-chip"><div class="stat-val" id="dash-exams">—</div><div class="stat-lbl">next exam (days)</div></div>
+  </div>
+  <div class="grid-2" style="margin-bottom:1rem">
+    <div class="card">
+      <div class="card-title">Today's plan</div>
+      <div id="dash-sessions"></div>
+      <div class="prog-wrap" style="margin-top:12px"><div class="prog-bar" id="dash-prog" style="width:0%"></div></div>
+      <div class="prog-text" id="dash-prog-text">–</div>
+    </div>
+    <div class="card">
+      <div class="card-title">This week <span style="font-family:'Instrument Sans',sans-serif;font-size:12px;font-weight:400;color:var(--muted)" id="dash-week-label"></span></div>
+      <div id="dash-week-grid" class="grid-7"></div>
+      <div style="margin-top:14px">
+        <div class="section-label">Planned study time per subject</div>
+        <div id="dash-subject-bars"></div>
+      </div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card"><div class="card-title">Topic progress</div><div id="dash-topics"></div></div>
+    <div class="card"><div class="card-title">Upcoming exams</div><div id="dash-exams-list"></div></div>
+  </div>
+</div>
+
+<!-- ═══ DAILY PLANNER ═══ -->
+<div id="page-planner" class="page">
+  <div class="grid-2">
+    <div>
+      <div class="day-nav">
+        <button class="day-nav-btn" onclick="changeDay(-1)">←</button>
+        <div>
+          <div class="day-label" id="plan-day-label">Monday</div>
+          <div class="day-date" id="plan-day-date"></div>
+        </div>
+        <div class="spacer"></div>
+        <button class="day-nav-btn" onclick="changeDay(1)">→</button>
+        <button class="btn btn-sm" onclick="openAddSession()">+ Session</button>
+      </div>
+      <div id="plan-sessions"></div>
+      <div class="prog-wrap"><div class="prog-bar" id="plan-prog" style="width:0%"></div></div>
+      <div class="prog-text" id="plan-prog-text">0 of 0 sessions done</div>
+    </div>
+    <div>
+      <div class="card" style="text-align:center">
+        <div class="card-title" style="justify-content:center">Pomodoro Timer</div>
+        <div style="position:relative;width:160px;height:160px;margin:0 auto 1rem">
+          <svg viewBox="0 0 160 160" style="position:absolute;top:0;left:0;width:100%;height:100%;transform:rotate(-90deg)">
+            <circle cx="80" cy="80" r="74" fill="none" stroke="var(--border)" stroke-width="6"/>
+            <circle cx="80" cy="80" r="74" fill="none" stroke="var(--green)" stroke-width="6" stroke-dasharray="464.96" stroke-dashoffset="0" id="plan-pomo-ring" stroke-linecap="round"/>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div class="pomo-time" id="plan-pomo-time">25:00</div>
+            <div class="pomo-phase" id="plan-pomo-phase">FOCUS</div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:6px">
+          <button class="pomo-btn primary" id="plan-pomo-start" onclick="togglePomoA()">Start</button>
+          <button class="pomo-btn" onclick="resetPomoA()">Reset</button>
+        </div>
+        <div style="display:flex;justify-content:center;gap:6px;margin-top:10px">
+          <button class="pomo-btn btn-sm" onclick="setPomoA(25,5)">25/5</button>
+          <button class="pomo-btn btn-sm" onclick="setPomoA(50,10)">50/10</button>
+          <button class="pomo-btn btn-sm" onclick="setPomoA(15,5)">15/5</button>
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:var(--muted)" id="plan-pomo-count">Pomodoros today: 0</div>
+      </div>
+      <div class="card" style="margin-top:1rem">
+        <div class="card-title">Session note</div>
+        <select id="note-subj-sel" style="width:100%;margin-bottom:8px"></select>
+        <textarea id="quick-note-text" placeholder="What did you study? What did you understand?"></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:8px">
+          <button class="btn btn-dark btn-sm" onclick="saveQuickNote()">Save note</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SUBJECTS ═══ -->
+<div id="page-subjects" class="page">
+  <div class="grid-2">
+    <div>
+      <div class="row" style="margin-bottom:1rem">
+        <div style="font-family:'Crimson Pro',serif;font-size:20px;font-weight:600">Your subjects</div>
+        <div class="spacer"></div>
+        <button class="btn btn-dark" onclick="openSubjModal()">+ Add subject</button>
+      </div>
+      <div id="subj-list"></div>
+    </div>
+    <div>
+      <div style="font-family:'Crimson Pro',serif;font-size:20px;font-weight:600;margin-bottom:1rem">Topic tracker</div>
+      <div class="card">
+        <div class="form-row">
+          <select id="topic-subj-sel" style="flex:1" onchange="renderTopics()"></select>
+          <button class="btn btn-sm" onclick="addTopic()">+ Topic</button>
+        </div>
+        <div id="topic-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ EXAMS ═══ -->
+<div id="page-exams" class="page">
+  <div class="grid-2">
+    <div>
+      <div class="row" style="margin-bottom:1rem">
+        <div style="font-family:'Crimson Pro',serif;font-size:20px;font-weight:600">Exam countdowns</div>
+        <div class="spacer"></div>
+        <button class="btn btn-dark" onclick="openExamModal()">+ Add exam</button>
+      </div>
+      <div id="exam-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Preparation timeline</div>
+      <div id="exam-timeline"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ NOTES ═══ -->
+<div id="page-notes" class="page">
+  <div class="row" style="margin-bottom:1rem">
+    <div style="font-family:'Crimson Pro',serif;font-size:20px;font-weight:600">Study log</div>
+    <div class="spacer"></div>
+    <select id="note-filter" onchange="renderNotes()"><option value="">All subjects</option></select>
+  </div>
+  <div id="notes-list"></div>
+</div>
+
+<!-- ═══ POMODORO ═══ -->
+<div id="page-pomodoro" class="page">
+  <div class="grid-2">
+    <div class="card" style="text-align:center">
+      <div class="card-title" style="justify-content:center">Focus Timer</div>
+      <div style="position:relative;width:200px;height:200px;margin:0 auto 1.5rem">
+        <svg viewBox="0 0 200 200" style="position:absolute;top:0;left:0;width:100%;height:100%;transform:rotate(-90deg)">
+          <circle cx="100" cy="100" r="92" fill="none" stroke="var(--border)" stroke-width="7"/>
+          <circle cx="100" cy="100" r="92" fill="none" stroke="var(--green)" stroke-width="7" stroke-dasharray="578.05" stroke-dashoffset="0" id="pomo-ring" stroke-linecap="round"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <div style="font-family:'DM Mono',monospace;font-size:42px;font-weight:500;letter-spacing:-1px" id="pomo-time2">25:00</div>
+          <div style="font-size:12px;color:var(--muted);letter-spacing:.08em;margin-top:4px" id="pomo-phase2">FOCUS</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:center;gap:8px;margin-bottom:1rem">
+        <button class="pomo-btn primary" id="pomo-start2" onclick="togglePomoB()">Start</button>
+        <button class="pomo-btn" onclick="resetPomoB()">Reset</button>
+      </div>
+      <div style="display:flex;justify-content:center;gap:6px;margin-bottom:1rem;flex-wrap:wrap">
+        <button class="pomo-btn btn-sm" onclick="setPomoB(25,5)">25/5</button>
+        <button class="pomo-btn btn-sm" onclick="setPomoB(50,10)">50/10</button>
+        <button class="pomo-btn btn-sm" onclick="setPomoB(15,5)">15/5</button>
+        <button class="pomo-btn btn-sm" onclick="setPomoB(90,20)">90/20</button>
+      </div>
+      <div style="font-size:13px;color:var(--muted)" id="pomo-count2">Pomodoros today: 0</div>
+      <div style="font-size:12px;color:var(--faint);margin-top:4px" id="pomo-total">Total all-time: 0</div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-title">Pomodoro log</div>
+        <div id="pomo-log"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Settings</div>
+        <div class="form-row"><label style="font-size:13px;flex:1">Focus minutes</label><input type="number" id="pomo-focus-input" value="25" min="1" max="120" style="width:70px"></div>
+        <div class="form-row"><label style="font-size:13px;flex:1">Break minutes</label><input type="number" id="pomo-break-input" value="5" min="1" max="60" style="width:70px"></div>
+        <div class="form-row"><label style="font-size:13px;flex:1">Sound alert</label><input type="checkbox" id="pomo-sound" checked></div>
+        <button class="btn btn-sm" onclick="applyPomoSettings()">Apply</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ STATISTICS ═══ -->
+<div id="page-stats" class="page">
+  <div style="margin-bottom:1.5rem">
+    <div style="font-family:'Crimson Pro',serif;font-size:26px;font-weight:600">Weekly statistics</div>
+    <div style="font-size:13px;color:var(--muted)">Every week is saved automatically — sessions reset each Monday, history stays forever</div>
+  </div>
+  <div class="grid-4" style="margin-bottom:1.5rem">
+    <div class="stat-chip"><div class="stat-val" id="stats-weeks">0</div><div class="stat-lbl">weeks tracked</div></div>
+    <div class="stat-chip"><div class="stat-val" id="stats-total">0</div><div class="stat-lbl">sessions completed</div></div>
+    <div class="stat-chip"><div class="stat-val" id="stats-best">0%</div><div class="stat-lbl">best week</div></div>
+    <div class="stat-chip"><div class="stat-val" id="stats-avg">0%</div><div class="stat-lbl">average completion</div></div>
+  </div>
+  <div class="card" style="margin-bottom:1.5rem">
+    <div class="card-title">Completion by week</div>
+    <div id="stats-chart" style="display:flex;align-items:flex-end;gap:6px;height:120px;overflow-x:auto;padding-bottom:4px"></div>
+    <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;font-size:12px">
+      <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:8px;border-radius:2px;background:var(--green)"></div>100%</div>
+      <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:8px;border-radius:2px;background:var(--amber)"></div>60–99%</div>
+      <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:8px;border-radius:2px;background:var(--red)"></div>below 60%</div>
+    </div>
+  </div>
+  <div class="section-label">Week-by-week breakdown — click any week to expand</div>
+  <div id="stats-list" style="margin-top:10px"></div>
+</div>
+
+</main>
+
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  WEEK KEY UTILITIES
+//  Week key = ISO date string of that week's Monday, e.g. "2025-03-17"
+// ══════════════════════════════════════════
+function getMondayDate(d) {
+  const dt = new Date(d); dt.setHours(0,0,0,0);
+  const day = dt.getDay(); // 0=Sun
+  dt.setDate(dt.getDate() - (day === 0 ? 6 : day - 1));
+  return dt;
+}
+function weekKey(d) { return getMondayDate(d).toISOString().slice(0,10); }
+function currentWeekKey() { return weekKey(new Date()); }
+function weekRangeLabel(key) {
+  const mon = new Date(key+'T00:00');
+  const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+  const f = d => d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  return f(mon)+' – '+f(sun);
+}
+// Real date of a weekday index (0=Mon…6=Sun) within a given week key
+function realDateOfDay(wKey, di) {
+  const d = new Date(wKey+'T00:00'); d.setDate(d.getDate()+di); return d;
+}
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+const SK = 'stp_v4';
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const DS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+function freshDone() { return [[],[],[],[],[],[],[]]; }
+
+const DEF = {
+  subjects:[
+    {id:'dl',name:'Deep Learning',color:'#0C447C',bg:'#E6F1FB',topics:[{name:'Neural networks basics',pct:40},{name:'CNN architectures',pct:20},{name:'RNNs & LSTMs',pct:0},{name:'Transformers',pct:0},{name:'Practical coding',pct:10}]},
+    {id:'iot',name:'IoT',color:'#27500A',bg:'#EAF3DE',topics:[{name:'Protocol stack',pct:50},{name:'MQTT & CoAP',pct:30},{name:'Edge computing',pct:0},{name:'Security',pct:0}]},
+    {id:'ra',name:'Radar & Loc.',color:'#3C3489',bg:'#EEEDFE',topics:[{name:'Theory fundamentals',pct:60},{name:'Signal processing',pct:20},{name:'Project work',pct:10}]},
+    {id:'sn',name:'Software Networks',color:'#633806',bg:'#FAEEDA',topics:[{name:'Architecture',pct:70},{name:'Protocols',pct:40},{name:'Project work',pct:15}]}
+  ],
+  schedule:[
+    [{sid:'dl',topic:'Neural networks basics',dur:45},{sid:'dl',topic:'Exercises / practice',dur:30}],
+    [{sid:'iot',topic:'Slides review',dur:45},{sid:'iot',topic:'Protocol notes',dur:30}],
+    [{sid:'ra',topic:'Theory + project work',dur:60}],
+    [{sid:'dl',topic:'Practical / coding',dur:45},{sid:'dl',topic:'Review previous session',dur:30}],
+    [{sid:'sn',topic:'Theory + project work',dur:60}],
+    [{sid:'iot',topic:'Catch-up / deepen',dur:45},{sid:'ra',topic:'Catch-up / deepen',dur:45}],
+    [{sid:'rest',topic:'Rest day',dur:0}]
+  ],
+  // weekHistory: { [weekKey]: { done: freshDone(), snapshot: copy of schedule } }
+  weekHistory:{},
+  exams:[], notes:[],
+  pomodoros:0, pomoToday:0, pomoDayStamp:'', pomoLog:[],
+  streak:0, lastStudyDay:'', curDay:0
+};
+
+let D;
+try { D = JSON.parse(localStorage.getItem(SK)) || clone(DEF); } catch(e) { D = clone(DEF); }
+function clone(x) { return JSON.parse(JSON.stringify(x)); }
+function save() { try { localStorage.setItem(SK, JSON.stringify(D)); } catch(e){} }
+
+// Called on every page load and interaction — creates week entry if missing
+function ensureWeek(key) {
+  if (!key) key = currentWeekKey();
+  if (!D.weekHistory[key]) {
+    D.weekHistory[key] = { done: freshDone(), snapshot: clone(D.schedule) };
+    save();
+  }
+  return D.weekHistory[key];
+}
+
+function cw() { return ensureWeek(currentWeekKey()); } // current week entry
+
+// ══════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const todayIdx = () => { const d=new Date().getDay(); return d===0?6:d-1; };
+const getSubj = id => D.subjects.find(s=>s.id===id);
+const fmtDate = s => new Date(s+'T00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+const daysUntil = s => { const d=new Date(s+'T00:00'),n=new Date(); n.setHours(0,0,0,0); return Math.ceil((d-n)/86400000); };
+const genId = () => Math.random().toString(36).slice(2,8);
+const fmtSecs = s => String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+
+// ══════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  $('page-'+name).classList.add('active'); btn.classList.add('active');
+  ({dashboard:renderDashboard,planner:renderPlanner,subjects:()=>{renderSubjects();renderTopicSelector();},exams:renderExams,notes:renderNotes,pomodoro:renderPomoPage,stats:renderStats})[name]?.();
+}
+
+// ══════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════
+function renderDashboard() {
+  const now=new Date(),h=now.getHours();
+  $('dash-greeting').textContent=h<12?'Good morning':h<18?'Good afternoon':'Good evening';
+  $('dash-date').textContent=now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  $('dash-streak').textContent=D.streak;
+  $('dash-subjects').textContent=D.subjects.length;
+  $('dash-week-label').textContent=weekRangeLabel(currentWeekKey());
+
+  const wk=cw(), ti=todayIdx(), tSess=D.schedule[ti], tDone=wk.done[ti].length;
+  $('dash-today').textContent=tDone+'/'+tSess.length;
+  $('dash-prog').style.width=(tSess.length?Math.round(tDone/tSess.length*100):0)+'%';
+  $('dash-prog-text').textContent=tDone+' of '+tSess.length+' sessions done';
+
+  // today sessions
+  const dc=$('dash-sessions'); dc.innerHTML='';
+  tSess.slice(0,3).forEach((s,i)=>{
+    const subj=getSubj(s.sid),isDone=wk.done[ti].includes(i),el=document.createElement('div');
+    el.className='session-item'+(isDone?' done':'');
+    el.innerHTML=`<div class="check-circle">${isDone?'✓':''}</div><div style="flex:1"><div class="s-name">${subj?subj.name:'Rest'}</div><div class="s-detail">${s.topic}</div></div>${s.dur?`<span class="s-dur">${s.dur}m</span>`:''}`;
+    el.onclick=()=>{toggleDone(ti,i);renderDashboard();};
+    dc.appendChild(el);
+  });
+  if(tSess.length>3){const m=document.createElement('div');m.style.cssText='font-size:12px;color:var(--muted);text-align:center;padding:6px';m.textContent='+'+(tSess.length-3)+' more in Daily Planner';dc.appendChild(m);}
+
+  // weekly dot grid
+  const key=currentWeekKey(),wg=$('dash-week-grid'); wg.innerHTML='';
+  DS.forEach((d,i)=>{
+    const sess=D.schedule[i],dn=wk.done[i].length,pct=sess.length?Math.round(dn/sess.length*100):0,isToday=i===ti;
+    const realDate=realDateOfDay(key,i);
+    const col=document.createElement('div'); col.className='week-day-col';
+    col.innerHTML=`<div class="week-day-name" style="${isToday?'color:var(--text);font-weight:700':''}">${d}</div>
+      <div title="${realDate.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}" style="background:${pct===100?'var(--green-bg)':isToday?'var(--surface2)':'var(--surface)'};border:1px solid ${isToday?'var(--border2)':'var(--border)'};border-radius:6px;padding:6px 2px;min-height:40px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px">
+        ${sess.filter(s=>s.sid!=='rest').slice(0,2).map(s=>{const subj=getSubj(s.sid);return subj?`<div class="week-dot" style="background:${subj.color}"></div>`:''}).join('')}
+        ${pct>0?`<div style="font-size:10px;color:var(--muted)">${pct}%</div>`:''}
+      </div>
+      <div style="font-size:10px;color:var(--faint);margin-top:2px">${realDate.getDate()}</div>`;
+    wg.appendChild(col);
+  });
+
+  // subject time bars
+  const times={}; D.subjects.forEach(s=>times[s.id]=0);
+  D.schedule.forEach(ds=>ds.forEach(s=>{if(times[s.sid]!==undefined)times[s.id||s.sid]=(times[s.id||s.sid]||0)+s.dur;}));
+  D.subjects.forEach(subj=>{times[subj.id]=0;});
+  D.schedule.forEach(ds=>ds.forEach(s=>{const subj=getSubj(s.sid);if(subj)times[subj.id]+=s.dur;}));
+  const maxT=Math.max(...Object.values(times),1),sb=$('dash-subject-bars'); sb.innerHTML='';
+  D.subjects.forEach(subj=>{
+    const t=times[subj.id]||0,pct=Math.round(t/maxT*100);
+    const row=document.createElement('div'); row.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px';
+    row.innerHTML=`<div style="width:90px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${subj.name}</div><div style="flex:1;background:var(--surface2);border-radius:4px;height:6px;overflow:hidden"><div style="width:${pct}%;height:6px;border-radius:4px;background:${subj.color};transition:width .4s"></div></div><div style="min-width:36px;text-align:right;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px">${t}m</div>`;
+    sb.appendChild(row);
+  });
+
+  // topic progress
+  const dt=$('dash-topics'); dt.innerHTML='';
+  D.subjects.forEach(subj=>{
+    if(!subj.topics?.length)return;
+    const avg=Math.round(subj.topics.reduce((a,t)=>a+t.pct,0)/subj.topics.length);
+    const row=document.createElement('div'); row.className='topic-row';
+    row.innerHTML=`<div style="width:12px;height:12px;border-radius:50%;background:${subj.color};flex-shrink:0"></div><div class="topic-name" style="font-weight:500">${subj.name}</div><div class="mini-prog-wrap"><div class="mini-prog" style="width:${avg}%;background:${subj.color}"></div></div><div class="topic-pct" style="color:${subj.color}">${avg}%</div>`;
+    dt.appendChild(row);
+  });
+  if(!D.subjects.length) dt.innerHTML='<div class="empty">No subjects yet</div>';
+
+  // upcoming exams
+  const el=$('dash-exams-list'); el.innerHTML='';
+  const up=D.exams.filter(e=>daysUntil(e.date)>=0).sort((a,b)=>daysUntil(a.date)-daysUntil(b.date)).slice(0,3);
+  if(!up.length){el.innerHTML='<div class="empty">No exams scheduled</div>';$('dash-exams').textContent='—';}
+  else {
+    $('dash-exams').textContent=daysUntil(up[0].date);
+    up.forEach(e=>{
+      const d=daysUntil(e.date),cls=d<=7?'urgent':d<=21?'soon':'ok',subj=getSubj(e.sid),div=document.createElement('div');
+      div.className='exam-card';
+      div.innerHTML=`<div class="exam-days ${cls}">${d}</div><div class="exam-bar-wrap"><div class="exam-name">${e.name}</div><div class="exam-date">${fmtDate(e.date)} · ${subj?subj.name:''}</div></div>`;
+      el.appendChild(div);
+    });
+  }
+}
+
+// ══════════════════════════════════════════
+//  PLANNER
+// ══════════════════════════════════════════
+let curDay = D.curDay||0;
+
+function renderPlanner() {
+  $('plan-day-label').textContent=DAYS[curDay];
+  const rd=realDateOfDay(currentWeekKey(),curDay);
+  $('plan-day-date').textContent=rd.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  const wk=cw(), c=$('plan-sessions'); c.innerHTML='';
+  D.schedule[curDay].forEach((s,i)=>{
+    const subj=getSubj(s.sid),isDone=wk.done[curDay].includes(i),el=document.createElement('div');
+    el.className='session-item'+(isDone?' done':'');
+    el.innerHTML=`<div class="check-circle">${isDone?'✓':''}</div><div style="flex:1"><div class="s-name">${subj?subj.name:'Rest'}</div><div class="s-detail">${s.topic}</div></div>${s.dur?`<span class="s-dur">${s.dur}m</span>`:''}<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();deleteSession(${i})" style="margin-left:4px">✕</button>`;
+    el.onclick=ev=>{if(ev.target.tagName!=='BUTTON'){toggleDone(curDay,i);renderPlanner();}};
+    c.appendChild(el);
+  });
+  if(!D.schedule[curDay].length) c.innerHTML='<div class="empty">No sessions. Add one with + Session.</div>';
+  const total=D.schedule[curDay].length, dn=wk.done[curDay].length, pct=total?Math.round(dn/total*100):0;
+  $('plan-prog').style.width=pct+'%';
+  $('plan-prog-text').textContent=dn+' of '+total+' sessions done'+(pct===100?' — great work!':'');
+  updateNoteSubjSel();
+}
+
+function changeDay(dir){curDay=(curDay+dir+7)%7;D.curDay=curDay;save();renderPlanner();}
+
+function toggleDone(di,i){
+  const wk=cw(), idx=wk.done[di].indexOf(i);
+  if(idx===-1){wk.done[di].push(i);updateStreak();}
+  else wk.done[di].splice(idx,1);
+  save();
+}
+
+function updateStreak(){
+  const today=new Date().toISOString().slice(0,10);
+  if(D.lastStudyDay!==today){
+    const yd=new Date();yd.setDate(yd.getDate()-1);
+    D.streak=D.lastStudyDay===yd.toISOString().slice(0,10)?D.streak+1:1;
+    D.lastStudyDay=today;save();
+  }
+}
+
+function deleteSession(i){
+  if(!confirm('Delete this session?'))return;
+  D.schedule[curDay].splice(i,1);
+  const wk=cw(); wk.done[curDay]=wk.done[curDay].filter(x=>x!==i).map(x=>x>i?x-1:x);
+  if(wk.snapshot?.[curDay])wk.snapshot[curDay].splice(i,1);
+  save();renderPlanner();
+}
+
+function openAddSession(){
+  openModal(`<div class="modal-title">Add session — ${DAYS[curDay]}</div>
+    <div class="form-row"><label style="width:100px;font-size:13px">Subject</label><select id="m-sid" style="flex:1">${D.subjects.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}<option value="rest">Rest</option></select></div>
+    <div class="form-row"><label style="width:100px;font-size:13px">Topic</label><input type="text" id="m-topic" placeholder="What to study" style="flex:1"></div>
+    <div class="form-row"><label style="width:100px;font-size:13px">Duration (min)</label><input type="number" id="m-dur" value="45" min="5" max="180" style="width:80px"></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-dark" onclick="confirmAddSession()">Add</button></div>`);
+}
+function confirmAddSession(){
+  const s={sid:$('m-sid').value,topic:$('m-topic').value.trim()||'Study session',dur:parseInt($('m-dur').value)||45};
+  D.schedule[curDay].push(s);
+  const wk=cw(); if(wk.snapshot?.[curDay])wk.snapshot[curDay].push(clone(s));
+  save();closeModal();renderPlanner();
+}
+
+// ══════════════════════════════════════════
+//  SUBJECTS & TOPICS
+// ══════════════════════════════════════════
+const COLORS=['#0C447C','#27500A','#3C3489','#633806','#A32D2D','#085041','#854F0B','#712B13','#4B1528','#444441'];
+const BGS=['#E6F1FB','#EAF3DE','#EEEDFE','#FAEEDA','#FCEBEB','#E1F5EE','#FAEEDA','#FAECE7','#FBEAF0','#F1EFE8'];
+
+function renderSubjects(){
+  const sl=$('subj-list'); sl.innerHTML='';
+  D.subjects.forEach((s,i)=>{
+    const avg=s.topics?.length?Math.round(s.topics.reduce((a,t)=>a+t.pct,0)/s.topics.length):0;
+    const row=document.createElement('div'); row.className='subj-row';
+    row.innerHTML=`<div class="subj-color" style="background:${s.color}"></div><div style="flex:1"><div class="subj-name">${s.name}</div><div class="subj-meta">${s.topics?.length||0} topics · ${avg}% done</div></div><button class="btn btn-sm" onclick="editSubj(${i})">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteSubj(${i})">Delete</button>`;
+    sl.appendChild(row);
+  });
+  if(!D.subjects.length) sl.innerHTML='<div class="empty">No subjects yet.</div>';
+}
+function openSubjModal(idx){
+  const editing=idx!==undefined,s=editing?D.subjects[idx]:null;
+  const sc=s?s.color:COLORS[D.subjects.length%COLORS.length];
+  const sw=COLORS.map((c,ci)=>`<div class="color-swatch${c===sc?' selected':''}" style="background:${c}" data-bg="${BGS[ci]}" onclick="pickColor(this)"></div>`).join('');
+  openModal(`<div class="modal-title">${editing?'Edit':'Add'} subject</div>
+    <div class="form-row"><label style="font-size:13px;width:80px">Name</label><input type="text" id="m-sname" value="${s?s.name:''}" style="flex:1" placeholder="Subject name"></div>
+    <div class="form-row" style="align-items:flex-start"><label style="font-size:13px;width:80px;margin-top:4px">Color</label><div class="color-picker" id="m-cpicker">${sw}</div></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-dark" onclick="confirmSubj(${editing?idx:'undefined'})">Save</button></div>`);
+}
+function editSubj(i){openSubjModal(i);}
+function pickColor(el){document.querySelectorAll('#m-cpicker .color-swatch').forEach(s=>s.classList.remove('selected'));el.classList.add('selected');}
+function getPickedColor(){const s=document.querySelector('#m-cpicker .color-swatch.selected');return s?{color:s.style.background,bg:s.dataset.bg}:{color:COLORS[0],bg:BGS[0]};}
+function confirmSubj(idx){
+  const name=$('m-sname').value.trim();if(!name)return alert('Enter a name');
+  const {color,bg}=getPickedColor();
+  if(idx!==undefined&&idx!=='undefined')Object.assign(D.subjects[idx],{name,color,bg});
+  else D.subjects.push({id:genId(),name,color,bg,topics:[]});
+  save();closeModal();renderSubjects();renderTopicSelector();
+}
+function deleteSubj(i){if(!confirm('Delete this subject?'))return;D.subjects.splice(i,1);save();renderSubjects();renderTopicSelector();}
+
+function renderTopicSelector(){
+  [$('topic-subj-sel'),$('note-subj-sel')].forEach(sel=>{if(!sel)return;sel.innerHTML=D.subjects.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');});
+  const nf=$('note-filter');if(nf)nf.innerHTML='<option value="">All subjects</option>'+D.subjects.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  renderTopics();
+}
+function renderTopics(){
+  const sel=$('topic-subj-sel');if(!sel)return;
+  const subj=getSubj(sel.value),tl=$('topic-list');tl.innerHTML='';
+  if(!subj)return;
+  (subj.topics||[]).forEach((t,i)=>{
+    const row=document.createElement('div');row.className='topic-row';
+    row.innerHTML=`<div class="topic-name">${t.name}</div><input type="range" min="0" max="100" step="5" value="${t.pct}" style="flex:0 0 100px" oninput="updateTopicPct('${subj.id}',${i},this.value)"><div class="topic-pct" id="tp-${i}" style="color:${subj.color}">${t.pct}%</div><button class="btn btn-sm btn-danger" onclick="deleteTopic('${subj.id}',${i})">✕</button>`;
+    tl.appendChild(row);
+  });
+  if(!subj.topics?.length) tl.innerHTML='<div class="empty">No topics yet.</div>';
+}
+function addTopic(){
+  const sid=$('topic-subj-sel').value,subj=getSubj(sid);if(!subj)return;
+  openModal(`<div class="modal-title">Add topic to ${subj.name}</div><div class="form-row"><input type="text" id="m-tname" style="flex:1" placeholder="Topic name"></div><div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-dark" onclick="confirmTopic('${sid}')">Add</button></div>`);
+}
+function confirmTopic(sid){
+  const name=$('m-tname').value.trim();if(!name)return;
+  const subj=getSubj(sid);if(!subj)return;
+  if(!subj.topics)subj.topics=[];
+  subj.topics.push({name,pct:0});save();closeModal();renderTopics();
+}
+function updateTopicPct(sid,i,val){
+  const subj=getSubj(sid);if(!subj?.topics[i])return;
+  subj.topics[i].pct=parseInt(val);
+  const el=$('tp-'+i);if(el)el.textContent=val+'%';
+  save();
+}
+function deleteTopic(sid,i){const subj=getSubj(sid);if(!subj)return;subj.topics.splice(i,1);save();renderTopics();}
+
+// ══════════════════════════════════════════
+//  EXAMS
+// ══════════════════════════════════════════
+function renderExams(){
+  const el=$('exam-list');el.innerHTML='';
+  [...D.exams].sort((a,b)=>daysUntil(a.date)-daysUntil(b.date)).forEach(e=>{
+    const d=daysUntil(e.date),cls=d<0?'':d<=7?'urgent':d<=21?'soon':'ok',subj=getSubj(e.sid),ri=D.exams.indexOf(e),div=document.createElement('div');
+    div.className='exam-card';
+    div.innerHTML=`<div class="exam-days ${cls}">${d<0?'✓':d}</div><div class="exam-bar-wrap"><div class="exam-name">${e.name}</div><div class="exam-date">${fmtDate(e.date)} · ${subj?subj.name:'Unknown'}</div><div style="margin-top:6px"><div class="prog-wrap" style="margin:0"><div class="prog-bar" style="width:${e.prep||0}%;background:${subj?subj.color:'var(--green)'}"></div></div><div style="font-size:11px;color:var(--faint);margin-top:2px">Preparation: ${e.prep||0}%</div></div></div><div style="display:flex;flex-direction:column;gap:4px"><button class="btn btn-sm" onclick="editExam(${ri})">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteExam(${ri})">Del</button></div>`;
+    el.appendChild(div);
+  });
+  if(!D.exams.length)el.innerHTML='<div class="empty">No exams yet.</div>';
+  renderExamTimeline();
+}
+function renderExamTimeline(){
+  const tl=$('exam-timeline');tl.innerHTML='';
+  const up=D.exams.filter(e=>daysUntil(e.date)>=0).sort((a,b)=>daysUntil(a.date)-daysUntil(b.date));
+  if(!up.length){tl.innerHTML='<div class="empty">No upcoming exams</div>';return;}
+  const maxD=daysUntil(up[up.length-1].date)||1;
+  up.forEach(e=>{
+    const d=daysUntil(e.date),pct=Math.round(d/maxD*100),subj=getSubj(e.sid),row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:13px';
+    row.innerHTML=`<div style="width:90px;text-align:right;color:var(--muted)">${d}d away</div><div style="flex:1;position:relative;height:24px;background:var(--surface2);border-radius:4px;overflow:hidden"><div style="position:absolute;left:0;top:0;height:100%;width:${100-pct}%;background:${subj?subj.bg:'var(--green-bg)'};border-right:2px solid ${subj?subj.color:'var(--green)'};display:flex;align-items:center;justify-content:flex-end;padding-right:6px"><span style="font-size:11px;font-weight:500;color:${subj?subj.color:'var(--green)'}">${e.name}</span></div></div>`;
+    tl.appendChild(row);
+  });
+}
+function openExamModal(idx){
+  const editing=idx!==undefined,e=editing?D.exams[idx]:null;
+  openModal(`<div class="modal-title">${editing?'Edit':'Add'} exam</div>
+    <div class="form-row"><label style="font-size:13px;width:90px">Name</label><input type="text" id="m-ename" value="${e?e.name:''}" style="flex:1" placeholder="e.g. DL Final"></div>
+    <div class="form-row"><label style="font-size:13px;width:90px">Subject</label><select id="m-esid" style="flex:1">${D.subjects.map(s=>`<option value="${s.id}"${e?.sid===s.id?' selected':''}>${s.name}</option>`).join('')}</select></div>
+    <div class="form-row"><label style="font-size:13px;width:90px">Date</label><input type="date" id="m-edate" value="${e?e.date:''}" style="flex:1"></div>
+    <div class="form-row"><label style="font-size:13px;width:90px">Preparation %</label><input type="number" id="m-eprep" value="${e?.prep||0}" min="0" max="100" style="width:70px"></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-dark" onclick="confirmExam(${editing?idx:'undefined'})">Save</button></div>`);
+}
+function editExam(i){openExamModal(i);}
+function confirmExam(idx){
+  const name=$('m-ename').value.trim();if(!name)return alert('Enter a name');
+  const date=$('m-edate').value;if(!date)return alert('Pick a date');
+  const obj={name,sid:$('m-esid').value,date,prep:parseInt($('m-eprep').value)||0};
+  if(idx!==undefined&&idx!=='undefined')D.exams[idx]=obj;else D.exams.push(obj);
+  save();closeModal();renderExams();
+}
+function deleteExam(i){if(!confirm('Delete?'))return;D.exams.splice(i,1);save();renderExams();}
+
+// ══════════════════════════════════════════
+//  NOTES
+// ══════════════════════════════════════════
+function updateNoteSubjSel(){const sel=$('note-subj-sel');if(!sel)return;sel.innerHTML=D.subjects.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');}
+function saveQuickNote(){
+  const text=$('quick-note-text').value.trim();if(!text)return;
+  const sid=$('note-subj-sel').value,subj=getSubj(sid);
+  D.notes.unshift({id:genId(),sid,subjName:subj?subj.name:'Unknown',subjColor:subj?subj.color:'#888',text,date:new Date().toISOString()});
+  $('quick-note-text').value='';save();alert('Note saved!');
+}
+function renderNotes(){
+  const nl=$('notes-list');if(!nl)return;
+  const filter=$('note-filter')?.value||'';
+  const notes=filter?D.notes.filter(n=>n.sid===filter):D.notes;
+  nl.innerHTML='';
+  if(!notes.length){nl.innerHTML='<div class="empty">No notes yet.</div>';return;}
+  notes.forEach(n=>{
+    const d=new Date(n.date),div=document.createElement('div');div.className='note-entry';
+    div.innerHTML=`<div class="note-meta"><span style="color:${n.subjColor};font-weight:500">${n.subjName}</span><span>${d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})} at ${d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span><div class="spacer"></div><button class="btn btn-sm btn-danger" onclick="deleteNote('${n.id}')">Delete</button></div><div class="note-text">${n.text.replace(/\n/g,'<br>')}</div>`;
+    nl.appendChild(div);
+  });
+}
+function deleteNote(id){if(!confirm('Delete?'))return;D.notes=D.notes.filter(n=>n.id!==id);save();renderNotes();}
+
+// ══════════════════════════════════════════
+//  POMODORO
+// ══════════════════════════════════════════
+let PA={r:false,iv:null,f:25,b:5,s:25*60,brk:false,c:464.96};
+let PB={r:false,iv:null,f:25,b:5,s:25*60,brk:false,c:578.05};
+
+function uPomo(p,ids){
+  $(ids.t).textContent=fmtSecs(p.s);
+  $(ids.ph).textContent=p.brk?'BREAK':'FOCUS';
+  if($(ids.rg)){const pct=p.s/((p.brk?p.b:p.f)*60);$(ids.rg).style.strokeDashoffset=p.c*(1-pct);}
+  $(ids.st).textContent=p.r?'Pause':'Start';
+  if(ids.ct){const today=new Date().toISOString().slice(0,10);if(D.pomoDayStamp!==today){D.pomoToday=0;D.pomoDayStamp=today;save();}$(ids.ct).textContent='Pomodoros today: '+D.pomoToday;}
+  if(ids.tot)$(ids.tot).textContent='Total all-time: '+D.pomodoros;
+}
+function tickP(p,ids){
+  p.s--;
+  if(p.s<=0){
+    if(!p.brk){D.pomodoros++;D.pomoToday++;D.pomoDayStamp=new Date().toISOString().slice(0,10);D.pomoLog.unshift({date:new Date().toISOString(),dur:p.f});save();if($('pomo-sound')?.checked)beep();}
+    p.brk=!p.brk;p.s=(p.brk?p.b:p.f)*60;
+  }
+  uPomo(p,ids);
+}
+const IDA={t:'plan-pomo-time',rg:'plan-pomo-ring',ph:'plan-pomo-phase',st:'plan-pomo-start',ct:'plan-pomo-count'};
+const IDB={t:'pomo-time2',rg:'pomo-ring',ph:'pomo-phase2',st:'pomo-start2',ct:'pomo-count2',tot:'pomo-total'};
+
+function togglePomoA(){if(PA.r){clearInterval(PA.iv);PA.r=false;}else{PA.r=true;PA.iv=setInterval(()=>tickP(PA,IDA),1000);}uPomo(PA,IDA);}
+function resetPomoA(){clearInterval(PA.iv);PA.r=false;PA.brk=false;PA.s=PA.f*60;uPomo(PA,IDA);}
+function setPomoA(f,b){PA.f=f;PA.b=b;clearInterval(PA.iv);PA.r=false;PA.brk=false;PA.s=f*60;uPomo(PA,IDA);}
+
+function togglePomoB(){if(PB.r){clearInterval(PB.iv);PB.r=false;}else{PB.r=true;PB.iv=setInterval(()=>tickP(PB,IDB),1000);}uPomo(PB,IDB);}
+function resetPomoB(){clearInterval(PB.iv);PB.r=false;PB.brk=false;PB.s=PB.f*60;uPomo(PB,IDB);}
+function setPomoB(f,b){PB.f=f;PB.b=b;clearInterval(PB.iv);PB.r=false;PB.brk=false;PB.s=f*60;uPomo(PB,IDB);}
+function applyPomoSettings(){setPomoB(parseInt($('pomo-focus-input').value)||25,parseInt($('pomo-break-input').value)||5);}
+
+function renderPomoPage(){
+  uPomo(PB,IDB);
+  const pl=$('pomo-log');pl.innerHTML='';
+  if(!D.pomoLog.length){pl.innerHTML='<div class="empty">No pomodoros yet.</div>';return;}
+  D.pomoLog.slice(0,10).forEach(p=>{
+    const d=new Date(p.date),row=document.createElement('div');
+    row.style.cssText='display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;align-items:center';
+    row.innerHTML=`<div style="color:var(--green);font-weight:500">✓ ${p.dur}min focus</div><div class="spacer"></div><div style="color:var(--muted)">${d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})} ${d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>`;
+    pl.appendChild(row);
+  });
+}
+function beep(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)(),o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=880;g.gain.value=0.3;o.start();setTimeout(()=>{g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.5);o.stop(ctx.currentTime+0.5);},100);}catch(e){}}
+
+// ══════════════════════════════════════════
+//  STATISTICS
+// ══════════════════════════════════════════
+function renderStats() {
+  ensureWeek();
+  const keys = Object.keys(D.weekHistory).sort(); // oldest → newest
+  const curKey = currentWeekKey();
+  const sl = $('stats-list'); sl.innerHTML='';
+  const chart = $('stats-chart'); chart.innerHTML='';
+
+  let totalComp=0, bestPct=0, sumPct=0;
+
+  keys.forEach(wk=>{
+    const wh=D.weekHistory[wk];
+    const snap=wh.snapshot||D.schedule;
+    const done=wh.done||freshDone();
+
+    let total=0,comp=0;
+    snap.forEach((ds,di)=>{total+=ds.length;comp+=done[di].length;});
+    const pct=total?Math.round(comp/total*100):0;
+    totalComp+=comp; sumPct+=pct; if(pct>bestPct)bestPct=pct;
+
+    // chart bar
+    const barColor=pct===100?'var(--green)':pct>=60?'var(--amber)':'var(--red)';
+    const barH=Math.max(pct,4);
+    const bc=document.createElement('div');
+    bc.style.cssText='display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-width:36px;max-width:60px';
+    bc.innerHTML=`<div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace">${pct}%</div>
+      <div style="width:100%;border-radius:3px 3px 0 0;height:${barH}px;background:${barColor};transition:height .4s" title="${weekRangeLabel(wk)}"></div>
+      <div style="font-size:10px;color:var(--faint);text-align:center;writing-mode:vertical-rl;transform:rotate(180deg);height:40px;overflow:hidden">${new Date(wk+'T00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>`;
+    chart.appendChild(bc);
+
+    // expandable week card
+    const isCurrent=wk===curKey;
+    const pctColor=pct===100?'var(--green)':pct>=60?'var(--amber)':'var(--red)';
+    const card=document.createElement('div'); card.className='week-history-card';
+
+    // build day rows HTML
+    let bodyHTML='';
+    DAYS.forEach((dayName,di)=>{
+      const daySess=snap[di]||[];
+      const rd=realDateOfDay(wk,di);
+      const dateStr=rd.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+      const pills=daySess.map((s,i)=>{
+        const subj=getSubj(s.sid);
+        const isDone=done[di].includes(i);
+        const bg=subj?subj.bg:'#f0f0ec', color=subj?subj.color:'#888';
+        return `<div class="hist-pill${isDone?'':' undone'}" style="background:${bg};color:${color}">${isDone?'✓ ':''}${subj?subj.name:'Rest'}<span style="font-weight:400;opacity:.75"> · ${s.topic}</span></div>`;
+      }).join('');
+      bodyHTML+=`<div class="hist-day-row">
+        <div class="hist-day-name">${dayName}<div style="font-size:11px;color:var(--faint);font-weight:400">${dateStr}</div></div>
+        <div class="hist-sessions">${pills||'<span style="font-size:12px;color:var(--faint)">No sessions</span>'}</div>
+      </div>`;
+    });
+
+    card.innerHTML=`<div class="week-history-header" onclick="toggleWeek(this)">
+      <div style="flex:1">
+        <div style="font-weight:500;font-size:14px">${weekRangeLabel(wk)}${isCurrent?' <span style="font-size:11px;color:var(--green);margin-left:6px">current week</span>':''}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${comp} of ${total} sessions completed · ${DAYS.filter((_,di)=>done[di].length>0).length} active days</div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:${pctColor}">${pct}%</div>
+      <div style="margin-left:10px;font-size:13px;color:var(--faint)" id="arr-${wk}">${isCurrent?'▲':'▼'}</div>
+    </div>
+    <div class="week-history-body${isCurrent?' open':''}" id="body-${wk}">${bodyHTML}</div>`;
+    sl.appendChild(card);
+  });
+
+  // stats summary
+  const wc=keys.length;
+  $('stats-weeks').textContent=wc;
+  $('stats-total').textContent=totalComp;
+  $('stats-best').textContent=bestPct+'%';
+  $('stats-avg').textContent=(wc?Math.round(sumPct/wc):0)+'%';
+
+  if(!wc) sl.innerHTML='<div class="empty">No week data yet — start ticking sessions and they\'ll appear here each week.</div>';
+
+  // reverse list so newest is on top
+  const cards=[...sl.children]; cards.reverse().forEach(c=>sl.appendChild(c));
+}
+
+function toggleWeek(header){
+  const body=header.nextElementSibling;
+  body.classList.toggle('open');
+  // find arrow span (last child of header)
+  const arr=header.querySelector('[id^="arr-"]');
+  if(arr) arr.textContent=body.classList.contains('open')?'▲':'▼';
+}
+
+// ══════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════
+function openModal(html){$('modal-content').innerHTML=html;$('modal-overlay').classList.add('open');}
+function closeModal(){$('modal-overlay').classList.remove('open');}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+function init(){
+  ensureWeek();
+  renderDashboard();
+  renderPlanner();
+  updateNoteSubjSel();
+  uPomo(PA,IDA);
+  uPomo(PB,IDB);
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+// This is your database schema.
+// Run "npm run db:migrate" every time you change this file.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  subjects  Subject[]
+  sessions  Session[]
+  exams     Exam[]
+  notes     Note[]
+  weeks     Week[]
+}
+
+model Subject {
+  id     String @id @default(cuid())
+  name   String
+  color  String
+  bg     String
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  topics   Topic[]
+  sessions Session[]
+  exams    Exam[]
+  notes    Note[]
+}
+
+model Topic {
+  id        String  @id @default(cuid())
+  name      String
+  pct       Int     @default(0)
+  subjectId String
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+}
+
+// A session is one study block in the weekly schedule template
+model Session {
+  id        String  @id @default(cuid())
+  dayIndex  Int     // 0=Mon … 6=Sun
+  topic     String
+  duration  Int     // minutes
+  subjectId String
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Exam {
+  id          String   @id @default(cuid())
+  name        String
+  date        String   // ISO date string "2025-06-15"
+  preparation Int      @default(0)
+  subjectId   String
+  subject     Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  text      String
+  createdAt DateTime @default(now())
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// One row per week per user — stores which sessions were completed that week
+model Week {
+  id          String @id @default(cuid())
+  weekKey     String // Monday ISO date "2025-03-17"
+  userId      String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Stored as JSON: { "sessionId": true, ... }
+  completions Json   @default("{}")
+
+  @@unique([userId, weekKey])
+}
